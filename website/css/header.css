@@ -1,0 +1,18 @@
+.flex{
+    display: flex;
+}
+.navigation{
+    justify-content: space-between;
+    font-family: Montserrat;
+    padding: 15px 40px;
+    background-color: black;
+}
+.nav-item{
+    margin-right: 10%;
+    text-decoration: none;
+    color: white;
+}
+.stempelHeader{
+    color: white;
+    margin-left: 10%;
+}
