@@ -11,6 +11,7 @@ if(!isset($_SESSION["name"])){
     <meta charset="utf-8">
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="../css/header.css">
+      <link rel="stylesheet" href="../css/footer.css">
     <link rel="stylesheet" href="../css/config.css">
     <title></title>
   </head>

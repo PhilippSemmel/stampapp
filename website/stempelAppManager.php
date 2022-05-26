@@ -5,12 +5,11 @@
 *
 *
 */
-function getCompetences(){
+function getCompetences() {
     $mysql = new PDO('sqlite:StempelApp.db');
     $stmt = $mysql->prepare("SELECT * FROM COMPETENCE");
     $stmt->execute();
-    $row = $stmt->fetchAll();
-    return $row;
+    return $stmt->fetchAll();
 }
 
 /**
@@ -18,9 +17,9 @@ function getCompetences(){
 *
 * Zu den bestimmten Zahlen wird ein Name zugeordnet
 */
-define("USER", 0);
-define("LEHRER", 1);
-define("ADMIN", 2);
+const USER = 0;
+const LEHRER = 1;
+const ADMIN = 2;
 
 /**
 * @author Silas Beckmann
@@ -28,7 +27,8 @@ define("ADMIN", 2);
 *
 * Erhalte den Rank des Nutzers
 */
-function getRank($username, $path){
+function getRank($username, $path): string
+{
   $mysql = new PDO('sqlite:'.$path.'/StempelApp.db');
   $stmt = $mysql->prepare("SELECT * FROM User WHERE Name = :user");
   $stmt->bindParam(":user", $username);
@@ -43,35 +43,31 @@ function getRank($username, $path){
 *
 * Erhalte den Rank des Nutzers
 */
-function getUsersByRank($rank, $path){
+function getUsersByRank($rank, $path) : String {
     $mysql = new PDO('sqlite:'.$path.'/StempelApp.db');
     $stmt = $mysql->prepare("SELECT * FROM User WHERE Role = :rank");
     $stmt->bindParam(":rank", $rank);
     $stmt->execute();
-    $row = $stmt->fetchAll();
-    return $row;
+    return $stmt->fetchAll();
 }
-function getUserByName($name, $path){
+function getUserByName($name, $path) {
     $mysql = new PDO('sqlite:'.$path.'/StempelApp.db');
     $stmt = $mysql->prepare("SELECT * FROM User WHERE Name = :name");
     $stmt->bindParam(":name", $name);
     $stmt->execute();
-    $row = $stmt->fetchAll();
-    return $row;
+    return $stmt->fetchAll();
 }
-function getUserById($id, $path){
+function getUserById($id, $path) {
     $mysql = new PDO('sqlite:'.$path.'/StempelApp.db');
     $stmt = $mysql->prepare("SELECT * FROM User WHERE Id = :id");
     $stmt->bindParam(":id", $id);
     $stmt->execute();
-    $row = $stmt->fetchAll();
-    return $row;
+    return $stmt->fetchAll();
 }
-function getUsers($path){
+function getUsers($path) {
     $mysql = new PDO('sqlite:'.$path.'/StempelApp.db');
     $stmt = $mysql->prepare("SELECT * FROM User");
     $stmt->execute();
-    $row = $stmt->fetchAll();
-    return $row;
+    return $stmt->fetchAll();
 }
-?>
+

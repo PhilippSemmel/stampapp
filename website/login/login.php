@@ -23,7 +23,7 @@ if(isset($_POST["submit_register"])){
         </script>
         <?php
         } else {
-        echo '<p id="commentaryregister">Passwörter stimmen nicht übereinander ein</p>';
+        echo '<p id="commentaryregister">Passwörter stimmen nicht überein</p>';
         ?>
         <script>
         setTimeout(function(){document.getElementById('commentaryregister').remove();},10000);
