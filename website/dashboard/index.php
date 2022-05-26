@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once "../config.php";
 if(!isset($_SESSION["name"])){
     header("Location: ../login/login.php");
@@ -15,7 +15,7 @@ if(!isset($_SESSION["name"])){
     <title></title>
   </head>
   <body>
-    <?php include '../header.php'; ?>
+    <?php include '../header.inc.php'; ?>
     <div class="mainbody">
         <iframe name="mainframe" class="mainframe" src="entity.php"></iframe>
     </div>
@@ -38,14 +38,12 @@ if(!isset($_SESSION["name"])){
             ?>
                 <li><a href="courses.php" class="button" target="mainframe">Courses</a></li>
                 <li><a href="stamps.php" class="button" target="mainframe">Stamps</a></li>
-                
+
             <?php
             }
             ?>
             <li><a href="request.php" class="button" target="mainframe">Requests</a></li>
         </ul>
     </div>
-    <?php include '../footer.php'; ?>
   </body>
 </html>
-

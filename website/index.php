@@ -12,11 +12,11 @@ require_once "config.php";
     <title></title>
   </head>
   <body>
-    <?php include 'header.php'; ?>
+    <?php include 'header.inc.php'; ?>
     <div class="container">
       <div class="competence flex">
         <?php
-        foreach (getCompetences() as $value) {
+        foreach (getCompetences("StempelApp.db") as $value) {
           ?>
           <div class="competence-card flex">
             <h1><?= $value["Name"]?></h1>
@@ -27,6 +27,6 @@ require_once "config.php";
          ?>
       </div>
     </div>
-    <?php include 'footer.php'; ?>
+    <?php include 'footer.inc.php'; ?>
   </body>
 </html>

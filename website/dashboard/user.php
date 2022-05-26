@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once "../config.php";
 if(!isset($_SESSION["name"])){
     header("Location: ../login/login.php");
@@ -22,7 +22,7 @@ if(!isset($_SESSION["name"])){
             <p><?= $value["Role"]?></p>
             <?php
         }
-    } else if(getRank($_SESSION["name"], "../") == LEHRER){ 
+    } else if(getRank($_SESSION["name"], "../") == LEHRER){
         foreach (getUsersByRank(0, "../") as $value) {
             ?>
             <h1><?= $value["Name"]?></h1>

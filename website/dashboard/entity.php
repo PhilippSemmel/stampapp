@@ -1,21 +1,21 @@
-<?php 
+<?php
 require_once "../config.php";
 if(!isset($_SESSION["name"])){
     header("Location: ../login/login.php");
     exit;
 }
 $userTo = getUserById($_GET["id"], "../");
-$userFrom = getUserById($_SESSION["name"], "../");
-
-if($userFrom["Rank"] == LEHRER && $userTo["Rank"] == LEHRER){
-    header("Location: ../index.php");
-    exit;
+$userFrom = getUserByName($_SESSION["name"], "../");
+if($userFrom["Role"] != ADMIN){
+  if($userFrom["Role"] == LEHRER && $userTo["Role"] == LEHRER){
+      header("Location: ../index.php");
+      exit;
+  }
+  if($userFrom["Role"] == USER){
+      header("Location: ../index.php");
+      exit;
+  }
 }
-if($userFrom["Rank"] == USER){
-    header("Location: ../index.php");
-    exit;
-}
-
 ?>
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
