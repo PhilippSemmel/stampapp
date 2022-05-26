@@ -1,41 +1,42 @@
 <?php
 # $_SESSION = array(id, name, password, role, unlocked)
+# $selectedEntity
 
 # admin all info
 // main page
 $query =
-    'SELECT *
+    'SELECT Id, Name, Password Passwort, Role Rolle, Unlocked Freigeschaltet
     FROM User u
-    WHERE u.name = $_SESSION["name"]'
+    WHERE u.Id = $_SESSION["Id"]'
 
-// user table (count with array len)
+// user table
 $query =
-    'SELECT *
+    'SELECT Id, Name, Password Passwort, Role Rolle, Unlocked Freigeschaltet
     FROM User u
     ORDER BY u.Id'
 
-// course table (count with array len)
+// course table
 $query = 
-    'SELECT c.Id, c.Name, c.Class, c.Subject, COUNT(c.Name) as "Student Number", teacher.Name
-    FROM Course c, User_Course uc, User s, User t
-    WHERE uc.Course = c.Id
-    AND uc.User = s.Id
+    'SELECT c.Id, c.Name, c.Class Stufe, c.Subject Fach, COUNT(c.Name) as "Schüler Anzahl", t.Name Lehrer
+    FROM Course c, Student_Course sc, User s, User t
+    WHERE sc.Course = c.Id
+    AND sc.Student = s.Id
     AND s.Role = 2
     AND c.Teacher = t.Id
     GROUP BY c.Id'
 
-// stamp table (count with array len)
+// stamp table
 $query = 
-    'SELECT s.Id, s.Text, s.Image, u1.Name, u2.Name, c.Name, com.Name, s.Date 
+    'SELECT s.Id, s.Text, s.Image Bild, u1.Name Schüler, u2.Name Lehrer, c.Name Kurs, com.Name Kompetenze, s.Date Datum
     FROM Stamp s, User u1, User u2, Course c, Competence com
     WHERE s.Receiver = u1.Id
     AND s.Issuer = u2.Id
     AND s.Course = c.Id
     AND s.Competence = com.Id'
 
-// reqeust (count with array len)
+// reqeust
 $query = 
-    'SELECT r.Id, c.Name, u.Name
+    'SELECT r.Id, c.Name Kurs, u.Name Schüler
     FROM Request r, Course c, User u
     WHERE r.Course = c.Id
     AND r.Student = u.Id'
@@ -43,45 +44,59 @@ $query =
 # teacher
 // main page
 $query =
-    'SELECT *
+    'SELECT Id, Name, Password Passwort, Role Rolle, Unlocked Freigeschaltet
     FROM User u
-    WHERE u.name = $_SESSION["name"]'
+    WHERE uu.Id = $_SESSION["Id"]'
 
 // students table
 $query =
-    'SELECT s.Id, s.Name, c.Name
-    FROM User t, User s, Course c, User_Course uc
-    WHERE t.name = $_SESSION["name"]
+    'SELECT s.Id, s.Name Schüler, c.Name Lehrer
+    FROM User t, User s, Course c, Student_Course sc
+    WHERE t.Id = $_SESSION["Id"]
     AND c.Teacher = t.Id
-    AND uc.Course = c.Id
-    AND uc.User = s.Id
-    AND s.Role = 2'
+    AND sc.Course = c.Id
+    AND sc.Student = s.Id
+    AND s.Role = 0'
 
 // course table
 $query =
-    'SELECT c.Id, c.Name, c.Class, c.Subject
+    'SELECT c.Id, c.Name, c.Class Stufe, c.Subject Fach
     FROM Course c, User t
-    WHERE t.Name = $_SESSION["name"]
+    WHERE t.Id = $_SESSION["Id"]
     AND c.Teacher = t.Id'
 
 // request table
 $query = 
-    'SELECT r.Id, s.Name as "Schüler", c.Name as "Kurs"
+    'SELECT r.Id, s.Name Schüler, c.Name Kurs
     FROM User t, User s, Course c, Request r
-    WHERE t.name = $_SESSION["name"]
+    WHERE t.Id = $_SESSION["Id"]
     AND c.Teacher = t.Id
     AND r.Course = c.Id
-    AND r.User = s.Id'
+    AND r.Student = s.Id'
 
 # student
+// main page
+$query =
+    'SELECT Id, Name, Password Passwort, Role Rolle, Unlocked Freigeschaltet
+    FROM User u
+    WHERE u.Id = $_SESSION["Id"]'
+
 // course table
 $query =
-    'SELECT c.Id, c.Name, c.Class, c.Subject, t.Name as "Lehrer"
-    FROM User s, User t, User_Course uc, Course c
-    WHERE s.Name = $_SESSION["name"]
-    AND uc.User = s.Id
-    AND uc.Course = c.Id
+    'SELECT c.Id, c.Name, c.Class Stufe, c.Subject Fach, t.Name Lehrer
+    FROM User s, User t, Student_Course sc, Course c
+    WHERE s.Id = $_SESSION["Id"]
+    AND sc.Student = s.Id
+    AND sc.Course = c.Id
     AND t.Id = c.Teacher'
 
 // stamps table
+$query =
+    'SELECT s.Id, r.Name Schüler, i.Name Lehrer, c.Name Kurs, com.Name Kompetenze, s.Date Datum
+    FROM Stamp s, User r, User i, Course c, Competence com
+    WHERE r.Id = $_SESSION["id"]
+    AND s.Receiver = r.Id
+    AND s.Issuer = i.Id
+    AND s.Course = c.Id
+    AND s.Competence = com.Id'
 ?>
