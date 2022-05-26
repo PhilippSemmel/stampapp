@@ -1,6 +1,6 @@
 
 <?php
-require_once "../config.php";
+//require_once "../config.php";
 
 $mysql = new PDO('sqlite:../StempelApp.db');
 if(isset($_POST["submit_register"])){

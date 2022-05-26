@@ -18,9 +18,9 @@ require_once "config.php";
             <div class="competence flex">
                 <?php foreach (getCompetences() as $competence) { ?>
                     <div class="competence-card flex">
-                        <a href="/index.php">
+                        <a class="competence-text" href="/competence.php?id=<?= $competence["Id"]?>">
                             <h1><?= $competence["Name"]?></h1>
-                            <p><?= $competence["Text"]?></p>
+                            <p> <?= $competence["Text"]?></p>
                         </a>
                     </div>
                 <?php }  ?>

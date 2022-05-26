@@ -29,3 +29,8 @@
 .competence-card h1 {
   position: relative;
 }
+
+.competence-text {
+  text-decoration: none;
+  color: black;
+}

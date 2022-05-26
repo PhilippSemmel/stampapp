@@ -15,15 +15,15 @@ if(!isset($_SESSION["name"])){
   <body>
     <div id="content">
     <?php
-    if(getRank($_SESSION["name"], "../") == ADMIN){
-        foreach (getUsers("../") as $value) {
+    if(getRank($_SESSION["name"]) == ADMIN){
+        foreach (getUsers() as $value) {
             ?>
             <h1><?= $value["Name"]?></h1>
             <p><?= $value["Role"]?></p>
             <?php
         }
-    } else if(getRank($_SESSION["name"], "../") == LEHRER){
-        foreach (getUsersByRank(0, "../") as $value) {
+    } else if(getRank($_SESSION["name"]) == LEHRER){
+        foreach (getUsersByRank(0) as $value) {
             ?>
             <h1><?= $value["Name"]?></h1>
             <p><?= $value["Role"]?></p>

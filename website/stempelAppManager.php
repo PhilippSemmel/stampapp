@@ -1,13 +1,14 @@
 <?php
-
+$path = 'sqlite:StempelApp.db';
+$db = new PDO($path);
 /**
 * @author Silas Beckmann
 *
 *
 */
 function getCompetences() {
-    $mysql = new PDO('sqlite:StempelApp.db');
-    $stmt = $mysql->prepare("SELECT * FROM COMPETENCE");
+    global $db;
+    $stmt = $db->prepare("SELECT * FROM COMPETENCE");
     $stmt->execute();
     return $stmt->fetchAll();
 }
@@ -27,14 +28,14 @@ const ADMIN = 2;
 *
 * Erhalte den Rank des Nutzers
 */
-function getRank($username, $path): string
+function getRank($username): string
 {
-  $mysql = new PDO('sqlite:'.$path.'/StempelApp.db');
-  $stmt = $mysql->prepare("SELECT * FROM User WHERE Name = :user");
-  $stmt->bindParam(":user", $username);
-  $stmt->execute();
-  $row = $stmt->fetch();
-  return $row["Role"];
+    global $db;
+    $stmt = $db->prepare("SELECT * FROM User WHERE Name = :user");
+    $stmt->bindParam(":user", $username);
+    $stmt->execute();
+    $row = $stmt->fetch();
+    return $row["Role"];
 }
 
 /**
@@ -43,31 +44,38 @@ function getRank($username, $path): string
 *
 * Erhalte den Rank des Nutzers
 */
-function getUsersByRank($rank, $path) : String {
-    $mysql = new PDO('sqlite:'.$path.'/StempelApp.db');
-    $stmt = $mysql->prepare("SELECT * FROM User WHERE Role = :rank");
+function getUsersByRank($rank) : String {
+    global $db;
+    $stmt = $db->prepare("SELECT * FROM User WHERE Role = :rank");
     $stmt->bindParam(":rank", $rank);
     $stmt->execute();
     return $stmt->fetchAll();
 }
-function getUserByName($name, $path) {
-    $mysql = new PDO('sqlite:'.$path.'/StempelApp.db');
-    $stmt = $mysql->prepare("SELECT * FROM User WHERE Name = :name");
+function getUsersByName($name) {
+    global $db;
+    $stmt = $db->prepare("SELECT * FROM User WHERE Name = :name");
     $stmt->bindParam(":name", $name);
     $stmt->execute();
     return $stmt->fetchAll();
 }
-function getUserById($id, $path) {
-    $mysql = new PDO('sqlite:'.$path.'/StempelApp.db');
-    $stmt = $mysql->prepare("SELECT * FROM User WHERE Id = :id");
+function getUserById($id) {
+    global $db;
+    $stmt = $db->prepare("SELECT * FROM User WHERE Id = :id");
     $stmt->bindParam(":id", $id);
     $stmt->execute();
     return $stmt->fetchAll();
 }
-function getUsers($path) {
-    $mysql = new PDO('sqlite:'.$path.'/StempelApp.db');
-    $stmt = $mysql->prepare("SELECT * FROM User");
+function getUsers() {
+    global $db;
+    $stmt = $db->prepare("SELECT * FROM User");
     $stmt->execute();
     return $stmt->fetchAll();
 }
 
+function getCompetenceById($id) {
+    global $db;
+    $stmt = $db->prepare("SELECT * FROM Competence c WHERE c.Id = :id");
+    $stmt->bindParam(":id", $id);
+    $stmt->execute();
+    return $stmt->fetchAll();
+}

@@ -4,8 +4,8 @@ if(!isset($_SESSION["name"])){
     header("Location: ../login/login.php");
     exit;
 }
-$userTo = getUserById($_GET["id"], "../");
-$userFrom = getUserByName($_SESSION["name"], "../");
+$userTo = getUserById($_GET["id"]);
+$userFrom = getUsersByName($_SESSION["name"]);
 if($userFrom["Role"] != ADMIN){
   if($userFrom["Role"] == LEHRER && $userTo["Role"] == LEHRER){
       header("Location: ../index.php");

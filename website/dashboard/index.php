@@ -25,17 +25,17 @@ if(!isset($_SESSION["name"])){
         <ul>
             <li><a href="entity.php" class="button" target="mainframe">Übersicht</a></li>
             <?php
-            if(getRank($_SESSION["name"], "../") == LEHRER){
+            if(getRank($_SESSION["name"]) == LEHRER){
             ?>
             <li><a href="user.php" class="button" target="mainframe">Students</a></li>
             <?php } ?>
             <?php
-            if(getRank($_SESSION["name"], "../") == ADMIN){
+            if(getRank($_SESSION["name"]) == ADMIN){
             ?>
             <li><a href="user.php" class="button" target="mainframe">User</a></li>
             <?php } ?>
             <?php
-            if(getRank($_SESSION["name"], "../") != USER){
+            if(getRank($_SESSION["name"]) != USER){
             ?>
                 <li><a href="courses.php" class="button" target="mainframe">Courses</a></li>
                 <li><a href="stamps.php" class="button" target="mainframe">Stamps</a></li>
