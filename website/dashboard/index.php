@@ -25,25 +25,26 @@ if(!isset($_SESSION["name"])){
         <ul>
             <li><a href="entity.php" class="button" target="mainframe">Übersicht</a></li>
             <?php
-            if(getRank($_SESSION["name"]) == LEHRER){
+            if ($_SESSION['role'] == LEHRER) {
             ?>
-            <li><a href="user.php" class="button" target="mainframe">Students</a></li>
-            <?php } ?>
+                <li><a href="user.php" class="button" target="mainframe">Students</a></li>
             <?php
-            if(getRank($_SESSION["name"]) == ADMIN){
+            } elseif ($_SESSION['role'] == ADMIN) {
             ?>
-            <li><a href="user.php" class="button" target="mainframe">User</a></li>
-            <?php } ?>
-            <?php
-            if(getRank($_SESSION["name"]) != USER){
-            ?>
-                <li><a href="courses.php" class="button" target="mainframe">Courses</a></li>
-                <li><a href="stamps.php" class="button" target="mainframe">Stamps</a></li>
-
+                <li><a href="user.php" class="button" target="mainframe">User</a></li>
             <?php
             }
             ?>
-            <li><a href="request.php" class="button" target="mainframe">Requests</a></li>
+                <li><a href="courses.php" class="button" target="mainframe">Courses</a></li>
+                <li><a href="stamps.php" class="button" target="mainframe">Stamps</a></li>
+            }
+            <?php
+            if ($_SESSION['role'] > USER) {
+            ?>
+                <li><a href="request.php" class="button" target="mainframe">Requests</a></li>
+            <?php
+            }
+            ?>
         </ul>
     </div>
   </body>
