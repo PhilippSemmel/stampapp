@@ -23,8 +23,6 @@ function passwordMatch(): bool {
 
 function setSessionValues($user) {
     $_SESSION["name"] = $user["Name"];
-    $_SESSION["id"] = $user["Id"];
-    $_SESSION["role"] = $user["role"];
 }
 
 // register

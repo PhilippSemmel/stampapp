@@ -4,7 +4,11 @@ if(!isset($_SESSION["name"])){
     header("Location: ../login/login.php");
     exit;
 }
+
+$user = getUserByName($_SESSION["name"]);
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
@@ -25,11 +29,11 @@ if(!isset($_SESSION["name"])){
         <ul>
             <li><a href="entity.php" class="button" target="mainframe">Übersicht</a></li>
             <?php
-            if ($_SESSION['role'] == LEHRER) {
+            if ($user['role'] == LEHRER) {
             ?>
                 <li><a href="user.php" class="button" target="mainframe">Students</a></li>
             <?php
-            } elseif ($_SESSION['role'] == ADMIN) {
+            } elseif ($user['role'] == ADMIN) {
             ?>
                 <li><a href="user.php" class="button" target="mainframe">User</a></li>
             <?php
@@ -39,7 +43,7 @@ if(!isset($_SESSION["name"])){
                 <li><a href="stamps.php" class="button" target="mainframe">Stamps</a></li>
             }
             <?php
-            if ($_SESSION['role'] > USER) {
+            if ($user['role'] > USER) {
             ?>
                 <li><a href="request.php" class="button" target="mainframe">Requests</a></li>
             <?php

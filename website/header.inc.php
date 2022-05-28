@@ -1,5 +1,7 @@
 <?php
 require_once "config.php";
+
+$user = getUserByName($_SESSION['name'])
 ?>
 <div class="navigation flex">
     <div class="stempel">
@@ -10,7 +12,7 @@ require_once "config.php";
             <a href="/login/login.php" class="nav-item">Login</a>
         <?php } else { ?>
             <a href="/login/logout.php" class="nav-item">Logout</a>
-            <a href="/dashboard/index.php?id=<?= getUsersByName($_SESSION["name"])["Id"] ?>" class="nav-item">Dashboard</a>
+            <a href="/dashboard/index.php?id=<?= $user["Id"] ?>" class="nav-item">Dashboard</a>
         <?php } ?>
     </div>
 </div>

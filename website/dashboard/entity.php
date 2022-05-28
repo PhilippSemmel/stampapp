@@ -26,7 +26,7 @@ if($userFrom["Role"] != ADMIN){
   </head>
   <body>
     <div id="content">
-    <p class="price"><?php $userTo["Name"]?></p>
+    <p class="price"><?= $userTo["Name"]?></p>
     </div>
   </body>
 </html>
