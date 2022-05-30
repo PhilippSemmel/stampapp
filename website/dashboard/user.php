@@ -1,4 +1,5 @@
 <?php
+
 require_once "../stempelAppManager.php";
 
 if (!isset($_SESSION["name"])) {

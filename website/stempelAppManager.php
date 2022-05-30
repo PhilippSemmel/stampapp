@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 
 $db = new PDO('sqlite:' . dirname(__FILE__) . '/StempelApp.db');
