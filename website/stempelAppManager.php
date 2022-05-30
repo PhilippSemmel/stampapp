@@ -1,27 +1,25 @@
 <?php
+session_start();
 
-// ToDo get the correct database in top level folder
-$path = 'sqlite:'.dirname(__FILE__).'/StempelApp.db';
-$db = new PDO($path);
+$db = new PDO('sqlite:' . dirname(__FILE__) . '/StempelApp.db');
 
-
-/**
-* @author Silas Beckmann
-*
-*
-*/
+const USER = 0;
+const LEHRER = 1;
+const ADMIN = 2;
 
 /**
  * competence functions
  */
-function getCompetences() {
+function getCompetences()
+{
     global $db;
     $stmt = $db->prepare("SELECT * FROM COMPETENCE");
     $stmt->execute();
     return $stmt->fetchAll();
 }
 
-function getCompetenceById($id) {
+function getCompetenceById($id)
+{
     global $db;
     $stmt = $db->prepare("SELECT * FROM Competence WHERE Id = :id");
     $stmt->bindParam(":id", $id);
@@ -32,24 +30,8 @@ function getCompetenceById($id) {
 /**
  * user functions
  */
-
-
-/**
-* @author Silas Beckmann
-*
-* Zu den bestimmten Zahlen wird ein Name zugeordnet
-*/
-const USER = 0;
-const LEHRER = 1;
-const ADMIN = 2;
-
-/**
-* @author Silas Beckmann
-* @return String: Gibt den Rank von dem Nutzer $username zurück
-*
-* Erhalte den Rank des Nutzers
-*/
-function getRank($username): string {
+function getRank($username): string
+{
     global $db;
     $stmt = $db->prepare("SELECT * FROM User WHERE Name = :user");
     $stmt->bindParam(":user", $username);
@@ -58,13 +40,8 @@ function getRank($username): string {
     return $row["Role"];
 }
 
-/**
-* @author Silas Beckmann
-* @return String: Gibt den Rank von dem Nutzer $username zurück
-*
-* Erhalte den Rank des Nutzers
-*/
-function getUsersByRank($rank) : String {
+function getUsersByRank($rank): string
+{
     global $db;
     $stmt = $db->prepare("SELECT * FROM User WHERE Role = :rank");
     $stmt->bindParam(":rank", $rank);
@@ -72,40 +49,27 @@ function getUsersByRank($rank) : String {
     return $stmt->fetchAll();
 }
 
-function getUsersByName($name) {
+function getUserByName($name)
+{
     global $db;
     $stmt = $db->prepare("SELECT * FROM User WHERE Name = :name");
     $stmt->bindParam(":name", $name);
     $stmt->execute();
-    return $stmt->fetchAll();
+    return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
-function getUserByName($name) {
-    global $db;
-    $stmt = $db->prepare("SELECT * FROM User WHERE Name = :name");
-    $stmt->bindParam(":name", $name);
-    $stmt->execute();
-    return $stmt->fetch();
-}
-
-function getUserById($id) {
-    global $db;
-    $stmt = $db->prepare("SELECT * FROM User WHERE Id = :id");
-    $stmt->bindParam(":id", $id);
-    $stmt->execute();
-    return $stmt->fetchAll();
-}
-
-function getUsers() {
+function getUsers()
+{
     global $db;
     $stmt = $db->prepare("SELECT * FROM User");
     $stmt->execute();
     return $stmt->fetchAll();
 }
 
-function addNewUser($name, $pw) {
+function addNewUser($name, $pw)
+{
     global $db;
-    $stmt = $db->prepare("INSERT INTO User (id, Name, Password, Role) VALUES (null, :id, :pw, 0)");
+    $stmt = $db->prepare("INSERT INTO User (id, Name, Password, Role, Unlocked) VALUES (null, :id, :pw, 0, :unlocked)");
     $stmt->bindParam(":user", $name);
     $hash = password_hash($pw, PASSWORD_BCRYPT);
     $stmt->bindParam(":pw", $hash);

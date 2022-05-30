@@ -1,7 +1,10 @@
 <?php
-require_once "config.php";
+require_once "stempelAppManager.php";
 
-$user = getUserByName($_SESSION['name'])
+if (isset($_SESSION['name'])) {
+    $user = getUserByName($_SESSION['name']);
+}
+
 ?>
 <div class="navigation flex">
     <div class="stempel">

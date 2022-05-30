@@ -1,11 +1,13 @@
 <?php
-require_once "config.php";
+require_once "stempelAppManager.php";
 
-if(isset($_GET["id"])) {
-    $competence = getCompetenceById($_GET["id"]);
-} else {
-    $competence = array ('Id' => 0, 'Name' => 'Error', 'Text' => 'Error Error');
+if (!isset($_GET["id"])) {
+    header("Location: ../login/login.php");
+    exit;
 }
+
+$competence = getCompetenceById($_GET["id"]);
+
 ?>
 
 <!DOCTYPE html>
@@ -18,12 +20,12 @@ if(isset($_GET["id"])) {
     <link rel="stylesheet" href="css/competence.css">
     <title></title>
 </head>
-    <body>
-        <?php include 'header.inc.php'; ?>
-        <div class="text">
-            <h1><?= $competence['Name'] ?></h1>
-            <p><?= $competence['Text'] ?></p>
-        </div>
-        <?php include 'footer.inc.php'; ?>
-    </body>
+<body>
+<?php include 'header.inc.php'; ?>
+<div class="text">
+    <h1><?= $competence['Name'] ?></h1>
+    <p><?= $competence['Text'] ?></p>
+</div>
+<?php include 'footer.inc.php'; ?>
+</body>
 </html>

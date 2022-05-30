@@ -1,77 +1,88 @@
 @import url('https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Montserrat:wght@200;400&family=Roboto&family=Share+Tech+Mono&display=swap');
 
-html{
-  background-size: contain;
-  height: 100%;
-  width: 100%;
-  background-color: #f8f7f8;
+html {
+    background-size: contain;
+    height: 100%;
+    width: 100%;
+    background-color: #f8f7f8;
 }
 
-.flex{
+.flex {
     display: flex;
 }
+
 /******************** COMMENTARY ********************/
-#commentarylogin{
-  color:black;
-  font-family: Montserrat;
-  font-weight: 200;
+#commentarylogin {
+    color: black;
+    font-family: Montserrat;
+    font-weight: 200;
 }
-#commentaryregister{
-  color:black;
-  font-family: Montserrat;
-  font-weight: 200;
+
+#commentaryregister {
+    color: black;
+    font-family: Montserrat;
+    font-weight: 200;
 }
+
 /******************** LOGIN ********************/
-.login-register{
+.login-register {
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
-#login{
-  text-align: center;
-  text-align-last: center;
+
+#login {
+    text-align: center;
+    text-align-last: center;
 }
-#register{
-  text-align: center;
-  text-align-last: center;
+
+#register {
+    text-align: center;
+    text-align-last: center;
 }
+
 .login-btn {
-  background:linear-gradient(10deg, #141839, #351439);
-  color: white;
-  padding: 14px 20px;
-  margin: 10px 0;
-  border: none;
-  cursor: pointer;
+    background: linear-gradient(10deg, #141839, #351439);
+    color: white;
+    padding: 14px 20px;
+    margin: 10px 0;
+    border: none;
+    cursor: pointer;
 }
+
 .loggin-btn:hover {
-  opacity: 0.8;
+    opacity: 0.8;
 }
-.login-picture{
-  position: absolute;
-  color:#351439;
-  background: transparent;
-  border-radius: 20px;
+
+.login-picture {
+    position: absolute;
+    color: #351439;
+    background: transparent;
+    border-radius: 20px;
 }
-.register-picture{
-  position: absolute;
-  margin-top: 10px;
-  color:#351439;
-  background: transparent;
-  border-radius: 20px;
+
+.register-picture {
+    position: absolute;
+    margin-top: 10px;
+    color: #351439;
+    background: transparent;
+    border-radius: 20px;
 }
-.typein{
-  list-style-type: none;
-  padding: 0;
-  border: 1px solid grey;
-  border-radius: 4px;
-  padding: 9px 285px 9px 15px;
-  margin-top: 20px;
-  background-color: transparent;
-  max-width: 400px;
-  text-align-last: left;
+
+.typein {
+    list-style-type: none;
+    padding: 0;
+    border: 1px solid grey;
+    border-radius: 4px;
+    padding: 9px 285px 9px 15px;
+    margin-top: 20px;
+    background-color: transparent;
+    max-width: 400px;
+    text-align-last: left;
 }
-h1{
-  font-family: Montserrat;
-  font-weight: 200;
-  font-size: 50px;
+
+h1 {
+    font-family: Montserrat;
+    font-weight: 200;
+    font-size: 50px;
 }

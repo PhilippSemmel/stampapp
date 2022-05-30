@@ -1,32 +1,43 @@
 <?php
-require_once "../config.php";
-if(!isset($_SESSION["name"])){
+require_once "../stempelAppManager.php";
+
+if (!isset($_SESSION["name"])) {
     header("Location: ../login/login.php");
     exit;
 }
-$userTo = getUserById($_GET["id"]);
-$userFrom = getUsersByName($_SESSION["name"]);
-if($userFrom["Role"] != ADMIN){
-  if($userFrom["Role"] == LEHRER && $userTo["Role"] == LEHRER){
-      header("Location: ../index.php");
-      exit;
-  }
-  if($userFrom["Role"] == USER){
-      header("Location: ../index.php");
-      exit;
-  }
+
+$user = getUserByName($_SESSION['name']);
+
+function getRoleName($roleId): string
+{
+    $names = array(0 => 'Schüler', 1 => 'Lehrer', 2 => 'Admin');
+    return $names[$roleId];
 }
+
+function getUnlockedText($unlocked): string
+{
+    if (!$unlocked) {
+        return 'Nein';
+    } else {
+        return 'Ja';
+    }
+}
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
+<head>
     <meta charset="utf-8">
     <title></title>
-    <link href="../style/uebersicht.css" rel="stylesheet">
-  </head>
-  <body>
-    <div id="content">
-    <p class="price"><?= $userTo["Name"]?></p>
-    </div>
-  </body>
+</head>
+<body>
+<div id="content">
+    <p><b>Id</b>: <?= $user['Id'] ?></p>
+    <p><b>Name</b>: <?= $user['Name'] ?></p>
+    <p><b>Passwort</b>: <?= $user['Password'] ?></p>
+    <p><b>Rolle</b>: <?= getRoleName($user['Role']) ?></p>
+    <p><b>Freigeschaltet</b>: <?= getUnlockedText($user['Unlocked']) ?></p>
+</div>
+</body>
 </html>
