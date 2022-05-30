@@ -6,8 +6,8 @@ if (!isset($_SESSION["name"])) {
     exit;
 }
 
-$user = getUserByName($_SESSION['name'])
-
+$user = getUserByName($_SESSION['name']);
+$users = getUsers();
 ?>
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -16,24 +16,25 @@ $user = getUserByName($_SESSION['name'])
     <title></title>
 </head>
 <body>
-<div id="content">
-    <?php
-    if ($user['role'] == ADMIN) {
-        foreach (getUsers() as $value) {
-            ?>
-            <h1><?= $value["Name"] ?></h1>
-            <p><?= $value["Role"] ?></p>
-            <?php
-        }
-    } else if ($user['role'] == LEHRER) {
-        foreach (getUsersByRank(0) as $value) {
-            ?>
-            <h1><?= $value["Name"] ?></h1>
-            <p><?= $value["Role"] ?></p>
-            <?php
-        }
-    }
-    ?>
-</div>
+<main>
+    <div id="content">
+        <table>
+            <tr>
+                <?php foreach ($users[0] as $key => $u) { ?>
+                    <th><?= $key ?></th>
+                <?php } ?>
+            </tr>
+            <?php foreach ($users as $u) { ?>
+                <tr>
+                    <td><?= $u['Id'] ?></td>
+                    <td><?= $u['Name'] ?></td>
+                    <td><?= $u['Password'] ?></td>
+                    <td><?= $u['Role'] ?></td>
+                    <td><?= $u['Unlocked'] ?></td>
+                </tr>
+            <?php } ?>
+        </table>
+    </div>
+</main>
 </body>
 </html>

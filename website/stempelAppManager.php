@@ -49,29 +49,36 @@ function getUsersByRank($rank): string
     return $stmt->fetchAll();
 }
 
-function getUserByName($name)
-{
+function getUserByName($name) {
     global $db;
     $stmt = $db->prepare("SELECT * FROM User WHERE Name = :name");
     $stmt->bindParam(":name", $name);
     $stmt->execute();
-    return $stmt->fetch(PDO::FETCH_ASSOC);
+    return $stmt->fetch();
 }
 
-function getUsers()
-{
+function getUsers() {
     global $db;
     $stmt = $db->prepare("SELECT * FROM User");
     $stmt->execute();
-    return $stmt->fetchAll();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function addNewUser($name, $pw)
-{
+function addNewUser($name, $pw) {
     global $db;
-    $stmt = $db->prepare("INSERT INTO User (id, Name, Password, Role, Unlocked) VALUES (null, :id, :pw, 0, :unlocked)");
+    $stmt = $db->prepare("INSERT INTO User (id, Name, Password, Role) VALUES (null, :id, :pw, 0)");
     $stmt->bindParam(":user", $name);
     $hash = password_hash($pw, PASSWORD_BCRYPT);
     $stmt->bindParam(":pw", $hash);
     $stmt->execute();
+}
+
+/**
+ * Course functions 
+ */
+function getCourses() {
+    global $db;
+    $stmt = $db->prepare("SELECT * FROM Course");
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
