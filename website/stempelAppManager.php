@@ -74,8 +74,8 @@ function getUsers()
 function addNewUser($name, $pw)
 {
     global $db;
-    $stmt = $db->prepare("INSERT INTO User (id, Name, Password, Role, Unlocked) VALUES (null, :id, :pw, 0, :unlocked)");
-    $stmt->bindParam(":user", $name);
+    $stmt = $db->prepare("INSERT INTO User (id, Name, Password, Role, Unlocked) VALUES (null, :name, :pw, 0, false)");
+    $stmt->bindParam(":name", $name);
     $hash = password_hash($pw, PASSWORD_BCRYPT);
     $stmt->bindParam(":pw", $hash);
     $stmt->execute();
