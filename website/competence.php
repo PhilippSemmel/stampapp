@@ -7,7 +7,6 @@ if (!isset($_GET["id"])) {
 }
 
 $competence = getCompetenceById($_GET["id"]);
-
 ?>
 
 <!DOCTYPE html>

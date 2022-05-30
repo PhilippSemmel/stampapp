@@ -8,12 +8,6 @@ if (!isset($_SESSION["name"])) {
 
 $user = getUserByName($_SESSION['name']);
 
-function getRoleName($roleId): string
-{
-    $names = array(0 => 'Schüler', 1 => 'Lehrer', 2 => 'Admin');
-    return $names[$roleId];
-}
-
 function getUnlockedText($unlocked): string
 {
     if (!$unlocked) {
@@ -22,9 +16,8 @@ function getUnlockedText($unlocked): string
         return 'Ja';
     }
 }
-
-
 ?>
+
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
@@ -36,7 +29,7 @@ function getUnlockedText($unlocked): string
     <p><b>Id</b>: <?= $user['Id'] ?></p>
     <p><b>Name</b>: <?= $user['Name'] ?></p>
     <p><b>Passwort</b>: <?= $user['Password'] ?></p>
-    <p><b>Rolle</b>: <?= getRoleName($user['Role']) ?></p>
+    <p><b>Rolle</b>: <?= ROLE_NAMES[$user['Role']] ?></p>
     <p><b>Freigeschaltet</b>: <?= getUnlockedText($user['Unlocked']) ?></p>
 </div>
 </body>

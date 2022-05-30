@@ -7,9 +7,7 @@ if (!isset($_SESSION["name"])) {
 }
 
 $user = getUserByName($_SESSION["name"]);
-
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">

@@ -4,8 +4,8 @@ require_once "stempelAppManager.php";
 if (isset($_SESSION['name'])) {
     $user = getUserByName($_SESSION['name']);
 }
-
 ?>
+
 <div class="navigation flex">
     <div class="stempel">
         <a href="/index.php" class="nav-item">StempelApp</a>

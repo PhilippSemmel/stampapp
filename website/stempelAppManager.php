@@ -3,9 +3,14 @@ session_start();
 
 $db = new PDO('sqlite:' . dirname(__FILE__) . '/StempelApp.db');
 
+
+/**
+ * constants
+ */
 const USER = 0;
 const LEHRER = 1;
 const ADMIN = 2;
+const ROLE_NAMES = array(0 => 'Schüler', 1 => 'Lehrer', 2 => 'Admin');
 
 /**
  * competence functions
@@ -63,7 +68,7 @@ function getUsers()
     global $db;
     $stmt = $db->prepare("SELECT * FROM User");
     $stmt->execute();
-    return $stmt->fetchAll();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 function addNewUser($name, $pw)
@@ -74,4 +79,14 @@ function addNewUser($name, $pw)
     $hash = password_hash($pw, PASSWORD_BCRYPT);
     $stmt->bindParam(":pw", $hash);
     $stmt->execute();
+}
+
+/**
+ * Course functions
+ */
+function getCourses() {
+    global $db;
+    $stmt = $db->prepare("SELECT * FROM Course");
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }

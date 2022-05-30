@@ -14,47 +14,49 @@ function echoMessage($message)
     <?php
 }
 
-function userExists(): bool
+function usernameExists(): bool
 {
     return boolval(getUserByName($_POST['username_register'])) == True;
 }
 
-function passwordMatch(): bool
+function passwordsMatch(): bool
 {
     return $_POST["pw_register"] == $_POST["pw_register2"];
 }
 
-function setSessionValues($user)
+function setNameOfUserInSession($name)
 {
-    $_SESSION["name"] = $user["Name"];
+    $_SESSION["name"] = $name;
 }
 
 // register
 if (isset($_POST["submit_register"])) {
-    if (userExists()) {
+    if (usernameExists()) {
         echoMessage('Username bereits vergeben');
-    } else {
-        if (passwordMatch()) {
-            addNewUser($_POST['username_register'], $_POST['pw_register']);
-            echoMessage('Nutzer angelegt');
-        } else {
-            echoMessage('Passwörter stimmen nicht überein');
-        }
+        return;
     }
+    if (!passwordsMatch()) {
+        echoMessage('Passwörter stimmen nicht überein');
+        return;
+    }
+    addNewUser($_POST['username_register'], $_POST['pw_register']);
+    $user = getUserByName($_POST['username_register']);
+    setNameOfUserInSession($user['Name']);
+    header("Location: ../dashboard/index.php?id=" . $user["Id"]);           // go to user dashboard
 }
 
 // login
 if (isset($_POST["submit_login"])) {
     $user = getUserByName($_POST['username_login']);
-    if (password_verify($_POST["pw_login"], $user["Password"])) {
-        setSessionValues($user);
-        header("Location: ../dashboard/index.php?id=" . $user["Id"]);
+    if (password_verify($_POST["pw_login"], $user["Password"])) {                  // test if passwords match
+        setNameOfUserInSession($user['Name']);
+        header("Location: ../dashboard/index.php?id=" . $user["Id"]);       // go to user dashboard
     } else {
         echoMessage('Login fehlgeschlagen');
     }
 }
-
 ?>
+
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
@@ -64,6 +66,7 @@ if (isset($_POST["submit_login"])) {
 </head>
 <body>
 <div class="login-register flex">
+    <!---------------- LOGIN ---------------->
     <div id="login">
         <h1>ANMELDEN</h1>
         <form action="login.php" method="post">
@@ -76,6 +79,7 @@ if (isset($_POST["submit_login"])) {
             <button type="submit" name="submit_login" class="login-btn">Einloggen</button>
         </form>
     </div>
+    <!---------------- REGISTER ---------------->
     <div id="register">
         <h1 class="h1">KUNDENKONTO ANLEGEN</h1>
         <form action="login.php" method="post">
