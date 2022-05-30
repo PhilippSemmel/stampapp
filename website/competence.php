@@ -1,5 +1,4 @@
 <?php
-
 require_once "stempelAppManager.php";
 
 if (!isset($_GET["id"])) {
