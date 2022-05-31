@@ -48,7 +48,7 @@ if (isset($_POST["submit_register"])) {
 // login
 if (isset($_POST["submit_login"])) {
     $user = getUserByName($_POST['username_login']);
-    if (password_verify($_POST["pw_login"], $user["Password"])) {                  // test if passwords match
+    if (password_verify($_POST["pw_login"], $user["Passwort"])) {                  // test if passwords match
         setNameOfUserInSession($user['Name']);
         header("Location: ../dashboard/index.php?id=" . $user["Id"]);       // go to user dashboard
     } else {

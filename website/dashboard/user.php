@@ -12,9 +12,9 @@ $users = getUsers($user);
 function printUserColumn($u)
 {
     global $user;
-    if ($user['Role'] == LEHRER) {
+    if ($user['Rolle'] == LEHRER) {
         printStudentColumnAsTeacher($u);
-    } elseif ($user['Role'] == ADMIN) {
+    } elseif ($user['Rolle'] == ADMIN) {
         printUserColumnAsAdmin($u);
     }
 }
@@ -24,7 +24,7 @@ function printUserColumnAsAdmin($u)
     <tr>
         <td><?= $u['Id'] ?></td>
         <td><?= $u['Name'] ?></td>
-        <td><?= ROLE_NAMES[$u['Rolle']] ?></td>
+        <td><?= ROLLEN_NAMEN[$u['Rolle']] ?></td>
         <td><?= getUnlockedText($u) ?></td>
     </tr>
 <?php }

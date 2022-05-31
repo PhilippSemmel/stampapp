@@ -20,8 +20,8 @@ $user = getUserByName($_SESSION["name"]);
 <div id="content">
     <p><b>Id</b>: <?= $user['Id'] ?></p>
     <p><b>Name</b>: <?= $user['Name'] ?></p>
-    <p><b>Rolle</b>: <?= ROLE_NAMES[$user['Role']] ?></p>
-    <?php if ($user['Role'] == LEHRER) { ?>
+    <p><b>Rolle</b>: <?= ROLLEN_NAMEN[$user['Rolle']] ?></p>
+    <?php if ($user['Rolle'] == LEHRER) { ?>
         <p><b>Freigeschaltet</b>: <?= getUnlockedText($user) ?></p>
     <?php } ?>
 </div>

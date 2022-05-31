@@ -35,7 +35,7 @@ $user = getUserByName($_SESSION["name"]);
         <?php } ?>
         <li><a href="courses.php" class="button" target="mainframe">Kurse</a></li>
         <li><a href="stamps.php" class="button" target="mainframe">Stempel</a></li>
-        <?php if (getRank($user['Name']) > USER) { ?>
+        <?php if (getRank($user['Name']) > NUTZER) { ?>
             <li><a href="request.php" class="button" target="mainframe">Anfragen</a></li>
         <?php } ?>
     </ul>
