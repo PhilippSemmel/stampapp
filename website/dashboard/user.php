@@ -6,7 +6,37 @@ if (!isset($_SESSION["name"])) {
     exit;
 }
 
-$users = getUsers();
+$user = getUserByName($_SESSION['name']);
+$users = getUsers($user);
+
+function printUserColumn($u)
+{
+    global $user;
+    if ($user['Role'] == LEHRER) {
+        printStudentColumnAsTeacher($u);
+    } elseif ($user['Role'] == ADMIN) {
+        printUserColumnAsAdmin($u);
+    }
+}
+
+function printUserColumnAsAdmin($u)
+{ ?>
+    <tr>
+        <td><?= $u['Id'] ?></td>
+        <td><?= $u['Name'] ?></td>
+        <td><?= ROLE_NAMES[$u['Rolle']] ?></td>
+        <td><?= getUnlockedText($u) ?></td>
+    </tr>
+<?php }
+
+function printStudentColumnAsTeacher($u)
+{ ?>
+    <tr>
+        <td><?= $u['Id'] ?></td>
+        <td><?= $u['Name'] ?></td>
+    </tr>
+<?php }
+
 ?>
 
 <!DOCTYPE html>
@@ -20,19 +50,13 @@ $users = getUsers();
     <div id="content">
         <table>
             <tr>
-                <?php foreach ($users[0] as $key => $user) { ?>
+                <?php foreach ($users[0] as $key => $u) { ?>
                     <th><?= $key ?></th>
                 <?php } ?>
             </tr>
-            <?php foreach ($users as $user) { ?>
-                <tr>
-                    <td><?= $user['Id'] ?></td>
-                    <td><?= $user['Name'] ?></td>
-                    <td><?= $user['Password'] ?></td>
-                    <td><?= $user['Role'] ?></td>
-                    <td><?= $user['Unlocked'] ?></td>
-                </tr>
-            <?php } ?>
+            <?php foreach ($users as $u) {
+                printUserColumn($u);
+            } ?>
         </table>
     </div>
 </main>

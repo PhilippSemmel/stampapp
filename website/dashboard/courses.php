@@ -7,7 +7,7 @@ if (!isset($_SESSION["name"])) {
 }
 
 $user = getUserByName($_SESSION['name']);
-$courses = getCourses();
+$courses = getCourses($user);
 ?>
 
 <!DOCTYPE html>
@@ -27,11 +27,9 @@ $courses = getCourses();
             </tr>
             <?php foreach ($courses as $course) { ?>
                 <tr>
-                    <td><?= $course['Id'] ?></td>
-                    <td><?= $course['Name'] ?></td>
-                    <td><?= $course['Class'] ?></td>
-                    <td><?= $course['Subject'] ?></td>
-                    <td><?= $course['Teacher'] ?></td>
+                    <?php foreach ($course as $val) { ?>
+                        <td><?= $val ?></td>
+                    <?php } ?>
                 </tr>
             <?php } ?>
         </table>

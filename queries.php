@@ -55,8 +55,7 @@ $query =
     WHERE t.Id = $_SESSION["Id"]
     AND c.Teacher = t.Id
     AND sc.Course = c.Id
-    AND sc.Student = s.Id
-    AND s.Role = 0'
+    AND sc.Student = s.Id'
 
 // course table
 $query =

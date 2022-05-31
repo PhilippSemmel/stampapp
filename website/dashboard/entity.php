@@ -6,16 +6,8 @@ if (!isset($_SESSION["name"])) {
     exit;
 }
 
-$user = getUserByName($_SESSION['name']);
+$user = getUserByName($_SESSION["name"]);
 
-function getUnlockedText($unlocked): string
-{
-    if (!$unlocked) {
-        return 'Nein';
-    } else {
-        return 'Ja';
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -28,9 +20,10 @@ function getUnlockedText($unlocked): string
 <div id="content">
     <p><b>Id</b>: <?= $user['Id'] ?></p>
     <p><b>Name</b>: <?= $user['Name'] ?></p>
-    <p><b>Passwort</b>: <?= $user['Password'] ?></p>
     <p><b>Rolle</b>: <?= ROLE_NAMES[$user['Role']] ?></p>
-    <p><b>Freigeschaltet</b>: <?= getUnlockedText($user['Unlocked']) ?></p>
+    <?php if ($user['Role'] == LEHRER) { ?>
+        <p><b>Freigeschaltet</b>: <?= getUnlockedText($user) ?></p>
+    <?php } ?>
 </div>
 </body>
 </html>
