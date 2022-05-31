@@ -22,21 +22,21 @@ $user = getUserByName($_SESSION["name"]);
 <body>
 <?php include '../header.inc.php'; ?>
 <div class="mainbody">
-    <iframe name="mainframe" class="mainframe" src="entity.php"></iframe>
+    <iframe name="mainframe" class="mainframe" src="entity.php?id=<?= $user['Id'] ?>"></iframe>
 </div>
 <!---------------- BUTTONLIST ---------------->
 <div class="buttonlist">
     <ul>
-        <li><a href="entity.php" class="button" target="mainframe">Übersicht</a></li>
+        <li><a href='entity.php?id=<?= $user['Id'] ?>' class="button" target="mainframe">Übersicht</a></li>
         <?php if (getRank($user['Name']) == LEHRER) { ?>
-            <li><a href="user.php" class="button" target="mainframe">Schüler</a></li>
+            <li><a href='user.php?id=<?= $user['Id'] ?>' class="button" target="mainframe">Schüler</a></li>
         <?php } elseif (getRank($user['Name']) == ADMIN) { ?>
-            <li><a href="user.php" class="button" target="mainframe">Nutzer</a></li>
+            <li><a href='user.php?id=<?= $user['Id'] ?>' class="button" target="mainframe">Nutzer</a></li>
         <?php } ?>
-        <li><a href="courses.php" class="button" target="mainframe">Kurse</a></li>
-        <li><a href="stamps.php" class="button" target="mainframe">Stempel</a></li>
+        <li><a href='course.php?id=<?= $user['Id'] ?>' class="button" target="mainframe">Kurse</a></li>
+        <li><a href='stamp.php?id=<?= $user['Id'] ?>' class="button" target="mainframe">Stempel</a></li>
         <?php if (getRank($user['Name']) > NUTZER) { ?>
-            <li><a href="request.php" class="button" target="mainframe">Anfragen</a></li>
+            <li><a href='request.php?id=<?= $user['Id'] ?>' class="button" target="mainframe">Anfragen</a></li>
         <?php } ?>
     </ul>
 </div>

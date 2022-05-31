@@ -78,6 +78,19 @@ function getUserByName($name)
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
+function getUserById($id)
+{
+    global $db;
+    $query =
+        'SELECT *
+        FROM Nutzer
+        WHERE Id = :id';
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(":id", $id);
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
 function getUsers($user)
 {
     if ($user['Rolle'] == LEHRER) {
@@ -149,9 +162,10 @@ function getCoursesAsAdmin()
 {
     global $db;
     $query =
-        'SELECT k.Id, k.Name, k.Stufe, k.Fach, count(sk.Id) as "Anzahl Schüler"
-        FROM Kurs k, Schüler_Kurs sk
+        'SELECT k.Id, k.Name, k.Stufe, k.Fach, l.Name as Lehrer, count(sk.Id) as "Anzahl Schüler"
+        FROM Kurs k, Schüler_Kurs sk, Nutzer l
         WHERE sk.Kurs = k.Id
+        AND k.Lehrer = l.Id
         GROUP BY k.Id';
     $stmt = $db->prepare($query);
     $stmt->execute();
@@ -190,9 +204,51 @@ function getCoursesAsUser($user)
 }
 
 /**
- * Course functions
+ * Stamp functions
  */
-function getStamps()
+function getStamps($user)
+{
+    if ($user['Rolle'] == NUTZER) {
+        return getStampsAsStudent($user);
+    } elseif ($user['Rolle'] == LEHRER) {
+        return getStampsAsTeacher($user);
+    } elseif ($user['Rolle'] == ADMIN) {
+        return getStampsAsAdmin();
+    }
+    return array();
+}
+
+function getStampsAsAdmin()
+{
+    global $db;
+    $query =
+        'SELECT s.Id, s.Text, s.Bild, e.Name as Empfänger, a.Name as Aussteller, k.Name as Kurs, kom.Name as Kompetenz, Datum
+        FROM Stempel s, Nutzer e, Nutzer a, Kurs k, Kompetenz kom
+        WHERE s.Empfänger = e.Id
+        AND s.Aussteller = a.Id
+        AND s.Kurs = k.Id
+        AND s.Kompetenz = kom.Id';
+    $stmt = $db->prepare($query);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getStampsAsTeacher()
+{
+    global $db;
+    $query =
+        'SELECT s.Id, s.Text, s.Bild, e.Name as Empfänger, a.Name as Aussteller, k.Name as Kurs, kom.Name as Kompetenz, Datum
+        FROM Stempel s, Nutzer e, Nutzer a, Kurs k, Kompetenz kom
+        WHERE s.Empfänger = e.Id
+        AND s.Aussteller = a.Id
+        AND s.Kurs = k.Id
+        AND s.Kompetenz = kom.Id';
+    $stmt = $db->prepare($query);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getStampsAsStudent()
 {
     global $db;
     $query =
@@ -210,7 +266,30 @@ function getStamps()
 /**
  * Request functions
  */
-function getRequests()
+function getRequests($user)
+{
+    if ($user['Rolle'] == LEHRER) {
+        return getRequestsAsTeacher($user);
+    } elseif ($user['Rolle'] == ADMIN) {
+        return getRequestsAsAdmin();
+    }
+    return array();
+}
+
+function getRequestsAsAdmin()
+{
+    global $db;
+    $query =
+        'SELECT r.Id, s.Name as Schüler, k.Name as Kurs 
+        FROM Anfrage r, Nutzer s, Kurs k
+        WHERE r.Schüler = s.Id
+        AND r.Kurs = k.Id';
+    $stmt = $db->prepare($query);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getRequestsAsTeacher()
 {
     global $db;
     $query =

@@ -6,7 +6,32 @@ if (!isset($_SESSION["name"])) {
     exit;
 }
 
-$requests = getRequests()
+$user = getUserById($_GET['id']);
+$requests = getRequests($user);
+
+function printColumnNames()
+{
+    global $requests;
+    foreach ($requests[0] as $key => $request) { ?>
+        <th><?= $key ?></th>
+    <?php }
+}
+
+function printEntityRow($request)
+{ ?>
+    <tr>
+        <?php foreach ($request as $key => $val) {
+            if ($key == 'Schüler') {
+                $user = getUserByName($val) ?>
+                <td><a href="entity.php?id=<?= $user['Id'] ?>"><?= $user['Name'] ?></a></td>
+            <?php } else { ?>
+            <td><?= $val ?></td>
+            <?php } ?>
+        <?php } ?>
+    </tr>
+    <?php
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -20,17 +45,11 @@ $requests = getRequests()
     <div id="content">
         <table>
             <tr>
-                <?php foreach ($requests[0] as $key => $request) { ?>
-                    <th><?= $key ?></th>
-                <?php } ?>
+                <?php printColumnNames() ?>
             </tr>
-            <?php foreach ($requests as $request) { ?>
-                <tr>
-                    <?php foreach ($request as $val) { ?>
-                        <td><?= $val ?></td>
-                    <?php } ?>
-                </tr>
-            <?php } ?>
+            <?php foreach ($requests as $request) {
+                printEntityRow($request);
+            } ?>
         </table>
     </div>
 </main>

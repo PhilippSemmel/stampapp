@@ -6,10 +6,18 @@ if (!isset($_SESSION["name"])) {
     exit;
 }
 
-$user = getUserByName($_SESSION['name']);
+$user = getUserById($_GET['id']);
 $users = getUsers($user);
 
-function printUserColumn($u)
+function printColumnNames()
+{
+    global $users;
+    foreach ($users[0] as $key => $user) { ?>
+        <th><?= $key ?></th>
+    <?php }
+}
+
+function printEntityRow($u)
 {
     global $user;
     if ($user['Rolle'] == LEHRER) {
@@ -19,21 +27,21 @@ function printUserColumn($u)
     }
 }
 
-function printUserColumnAsAdmin($u)
+function printUserColumnAsAdmin($user)
 { ?>
     <tr>
-        <td><?= $u['Id'] ?></td>
-        <td><?= $u['Name'] ?></td>
-        <td><?= ROLLEN_NAMEN[$u['Rolle']] ?></td>
-        <td><?= getUnlockedText($u) ?></td>
+        <td><?= $user['Id'] ?></td>
+        <td><a href="entity.php?id=<?= $user['Id'] ?>"><?= $user['Name'] ?></a></td>
+        <td><?= ROLLEN_NAMEN[$user['Rolle']] ?></td>
+        <td><?= getUnlockedText($user) ?></td>
     </tr>
 <?php }
 
-function printStudentColumnAsTeacher($u)
+function printStudentColumnAsTeacher($user)
 { ?>
     <tr>
-        <td><?= $u['Id'] ?></td>
-        <td><?= $u['Name'] ?></td>
+        <td><?= $user['Id'] ?></td>
+        <td><a href="entity.php?id=<?= $user['Id'] ?>"><?= $user['Name'] ?></a></td>
     </tr>
 <?php }
 
@@ -50,12 +58,10 @@ function printStudentColumnAsTeacher($u)
     <div id="content">
         <table>
             <tr>
-                <?php foreach ($users[0] as $key => $u) { ?>
-                    <th><?= $key ?></th>
-                <?php } ?>
+                <?php printColumnNames() ?>
             </tr>
             <?php foreach ($users as $u) {
-                printUserColumn($u);
+                printEntityRow($u);
             } ?>
         </table>
     </div>

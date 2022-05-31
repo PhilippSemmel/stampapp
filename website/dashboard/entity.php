@@ -6,7 +6,7 @@ if (!isset($_SESSION["name"])) {
     exit;
 }
 
-$user = getUserByName($_SESSION["name"]);
+$user = getUserById($_GET['id']);
 
 ?>
 
@@ -18,6 +18,7 @@ $user = getUserByName($_SESSION["name"]);
 </head>
 <body>
 <div id="content">
+    <p><?= $_SERVER['REQUEST_URI'] ?></p>
     <p><b>Id</b>: <?= $user['Id'] ?></p>
     <p><b>Name</b>: <?= $user['Name'] ?></p>
     <p><b>Rolle</b>: <?= ROLLEN_NAMEN[$user['Rolle']] ?></p>
