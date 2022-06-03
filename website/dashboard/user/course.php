@@ -22,9 +22,8 @@ function printEntityRow($course)
 { ?>
     <tr>
         <?php foreach ($course as $key => $val) {
-            if ($key == 'Lehrer') {
-                $teacher = getUserByName($val) ?>
-                <td><a href='entity.php?id=<?= $teacher['Id'] ?>'><?= $teacher['Name'] ?></a></td>
+            if ($key == 'Lehrer') { ?>
+                <td><a href='entity.php?id=<?= $val ?>'><?= getUserNameById($val) ?></a></td>
             <?php } elseif ($key == 'Name') { ?>
                 <td><a href='../course/entity.php?id=<?= $course['Id'] ?>'><?= $val ?></a></td>
             <?php } else { ?>

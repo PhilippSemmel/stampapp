@@ -1,5 +1,18 @@
 <?php
 require_once "stempelAppManager.php";
+
+function printCompetences()
+{
+    foreach (getCompetences() as $competence) { ?>
+        <div class="competence-card flex">
+            <a class="competence-text" href="/competence.php?id=<?= $competence["Id"] ?>">
+                <h1><?= $competence["Name"] ?></h1>
+                <p><?= $competence["Text"] ?></p>
+            </a>
+        </div>
+    <?php }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -16,14 +29,7 @@ require_once "stempelAppManager.php";
 <?php include 'header.inc.php'; ?>
 <div class="container">
     <div class="competence flex">
-        <?php foreach (getCompetences() as $competence) { ?>
-            <div class="competence-card flex">
-                <a class="competence-text" href="/competence.php?id=<?= $competence["Id"] ?>">
-                    <h1><?= $competence["Name"] ?></h1>
-                    <p><?= $competence["Text"] ?></p>
-                </a>
-            </div>
-        <?php } ?>
+        <?php printCompetences() ?>
     </div>
 </div>
 <?php include 'footer.inc.php'; ?>

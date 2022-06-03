@@ -22,12 +22,12 @@ function printEntityRow($stamp)
 { ?>
     <tr>
         <?php foreach ($stamp as $key => $val) {
-            if ($key == 'Empfänger' || $key == 'Aussteller') {
-                $user = getUserByName($val); ?>
-                <td><a href='entity.php?id=<?= $user['Id'] ?>'><?= $user['Name'] ?></a></td>
-            <?php } elseif ($key == 'Kurs') {
-                $course = getCourseById($val); ?>
-                <td><a href='../course/entity.php?id=<?= $course['Id'] ?>'><?= $course['Name'] ?></a></td>
+            if ($key == 'Empfänger' || $key == 'Aussteller') { ?>
+                <td><a href='entity.php?id=<?= $val ?>'><?= getUserNameById($val) ?></a></td>
+            <?php } elseif ($key == 'Kurs') { ?>
+                <td><a href='../course/entity.php?id=<?= $val ?>'><?= getCourseNameById($val) ?></a></td>
+            <?php } elseif ($key == 'Text') { ?>
+                <td><a href='../stamp/entity.php?id=<?= $stamp['Id'] ?>'><?= $val ?></a></td>
             <?php } else { ?>
                 <td><?= $val ?></td>
             <?php } ?>

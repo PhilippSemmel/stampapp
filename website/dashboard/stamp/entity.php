@@ -7,7 +7,6 @@ if (!isset($_SESSION["name"])) {
 }
 
 $stamp = getStampById($_GET['id']);
-
 ?>
 
 <!DOCTYPE html>
