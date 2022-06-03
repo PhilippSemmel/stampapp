@@ -29,6 +29,11 @@ function setNameOfUserInSession($name)
     $_SESSION["name"] = $name;
 }
 
+function headToDashboard($userid)
+{
+    header("Location: ../dashboard/user/entity.php?id=" . $userid);
+}
+
 // register
 if (isset($_POST["submit_register"])) {
     if (usernameExists()) {
@@ -42,7 +47,7 @@ if (isset($_POST["submit_register"])) {
     addNewUser($_POST['username_register'], $_POST['pw_register']);
     $user = getUserByName($_POST['username_register']);
     setNameOfUserInSession($user['Name']);
-    header("Location: ../dashboard/index.php?id=" . $user["Id"]);           // go to user dashboard
+    headToDashboard($user['Id']);
 }
 
 // login
@@ -50,7 +55,7 @@ if (isset($_POST["submit_login"])) {
     $user = getUserByName($_POST['username_login']);
     if (password_verify($_POST["pw_login"], $user["Passwort"])) {                  // test if passwords match
         setNameOfUserInSession($user['Name']);
-        header("Location: ../dashboard/index.php?id=" . $user["Id"]);       // go to user dashboard
+        headToDashboard($user['Id']);
     } else {
         echoMessage('Login fehlgeschlagen');
     }

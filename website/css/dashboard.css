@@ -1,17 +1,3 @@
-.mainframe {
-    width: 800px;
-    height: 500px;
-    float: right;
-    position: absolute;
-    margin-left: 30%;
-    margin-top: 10%;
-}
-
-.mainbody {
-    width: 100%;
-    height: 100%;
-}
-
 li {
     list-style: none;
 }

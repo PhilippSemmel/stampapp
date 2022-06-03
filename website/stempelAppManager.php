@@ -7,7 +7,7 @@ $db = new PDO('sqlite:' . dirname(__FILE__) . '/StempelApp.db');
 /**
  * constants
  */
-const NUTZER = 0;
+const SCHUELER = 0;
 const LEHRER = 1;
 const ADMIN = 2;
 const ROLLEN_NAMEN = array(0 => 'Schüler', 1 => 'Lehrer', 2 => 'Admin');
@@ -15,7 +15,7 @@ const ROLLEN_NAMEN = array(0 => 'Schüler', 1 => 'Lehrer', 2 => 'Admin');
 function getUnlockedText($user): string
 {
     if ($user['Rolle'] != LEHRER) {
-        return 'Ja';
+        return '';
     }
     if ($user['Freigeschaltet']) {
         return 'Ja';
@@ -51,19 +51,6 @@ function getCompetenceById($id)
 /**
  * user functions
  */
-function getRank($username): string
-{
-    global $db;
-    $query =
-        'SELECT * 
-        FROM Nutzer 
-        WHERE Name = :nutzer';
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(":nutzer", $username);
-    $stmt->execute();
-    $row = $stmt->fetch();
-    return $row['Rolle'];
-}
 
 function getUserByName($name)
 {
@@ -91,42 +78,25 @@ function getUserById($id)
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
-function getUsers($user)
-{
-    if ($user['Rolle'] == LEHRER) {
-        return getStudentsAsTeacher($user);
-    } elseif ($user['Rolle'] == ADMIN) {
-        return getUsersAsAdmin();
-    }
-    return array();
-}
-
-
-function getUsersAsAdmin()
+function getUsers($sessionUser, $selectedUser)
 {
     global $db;
-    $query =
-        'SELECT n.Id, n.Name, n.Rolle, n.Freigeschaltet
+    $parameters = array();
+    if ($selectedUser['Rolle'] == LEHRER) {
+        $query =
+                'SELECT n.Id, n.Name
+            FROM Nutzer n, Schüler_Kurs sk, Kurs k
+            WHERE sk.Schüler = n.Id
+            AND sk.Kurs = k.Id
+            AND k.Lehrer = ?';
+        $parameters[] = $selectedUser['Id'];
+    } else {
+        $query =
+            'SELECT n.Id, n.Name, n.Rolle, n.Freigeschaltet
         FROM Nutzer n';
+    }
     $stmt = $db->prepare($query);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-
-function getStudentsAsTeacher($user)
-{
-    global $db;
-    $query =
-        'SELECT s.Id, s.Name
-        FROM Nutzer l, Nutzer s, Kurs k, Schüler_Kurs sk
-        WHERE l.Id = :id
-        AND k.Lehrer = l.Id
-        AND sk.Kurs = k.Id
-        AND sk.Schüler = s.Id';
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(":id", $user['Id']);
-    $stmt->execute();
+    $stmt->execute($parameters);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
@@ -146,158 +116,94 @@ function addNewUser($name, $pw)
 /**
  * Course functions
  */
-function getCourses($user)
+function getCourseById($id)
 {
-    if ($user['Rolle'] == NUTZER) {
-        return getCoursesAsUser($user);
-    } elseif ($user['Rolle'] == LEHRER) {
-        return getCoursesAsTeacher($user);
-    } elseif ($user['Rolle'] == ADMIN) {
-        return getCoursesAsAdmin();
+    global $db;
+    $query =
+        'SELECT *
+        FROM Kurs k
+        WHERE k.Id = :id';
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(":id", $id);
+    $stmt->execute();
+    return $stmt->fetch();
+}
+
+
+function getCourses($sessionUser, $selectedUser)
+{
+    global $db;
+    $parameters = array();
+    if ($selectedUser['Rolle'] == LEHRER) {
+        $query =
+            'SELECT k.Id, k.Name, k.Stufe, k.Fach, count(sk.Id) as "Anzahl Schüler"
+            FROM Kurs k, Schüler_Kurs sk, Nutzer l
+            WHERE l.Id = ?
+            AND k.Lehrer = l.Id
+            AND sk.Kurs = k.Id
+            GROUP BY k.Id';
+        $parameters[] = $selectedUser['Id'];
+    } else {
+        $query =
+            'SELECT k.Id, k.Name, k.Stufe, k.Fach, l.Name as Lehrer, count(sk.Id) as "Anzahl Schüler"
+            FROM Kurs k, Schüler_Kurs sk, Nutzer l
+            WHERE sk.Kurs = k.Id
+            AND k.Lehrer = l.Id
+            GROUP BY k.Id';
     }
-    return array();
-}
-
-function getCoursesAsAdmin()
-{
-    global $db;
-    $query =
-        'SELECT k.Id, k.Name, k.Stufe, k.Fach, l.Name as Lehrer, count(sk.Id) as "Anzahl Schüler"
-        FROM Kurs k, Schüler_Kurs sk, Nutzer l
-        WHERE sk.Kurs = k.Id
-        AND k.Lehrer = l.Id
-        GROUP BY k.Id';
     $stmt = $db->prepare($query);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-function getCoursesAsTeacher($user)
-{
-    global $db;
-    $query =
-        'SELECT k.Id, k.Name, k.Stufe, k.Fach, count(sk.Id) as "Anzahl Schüler"
-        FROM Kurs k, Nutzer l, Schüler_Kurs sk
-        WHERE l.Id = :id
-        AND k.Lehrer = l.Id
-        AND sk.Kurs = k.Id
-        GROUP BY k.Id';
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(":id", $user['Id']);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-function getCoursesAsUser($user)
-{
-    global $db;
-    $query =
-        'SELECT k.Id, k.Name, k.Stufe, k.Fach, l.Name as Lehrer
-        FROM Kurs k, Nutzer l, Schüler_Kurs sk
-        WHERE k.Lehrer = l.Id
-        AND sk.Kurs = k.Id
-        AND sk.Schüler = :id';
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(":id", $user['Id']);
-    $stmt->execute();
+    $stmt->execute($parameters);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 /**
  * Stamp functions
  */
-function getStamps($user)
+function getStamps($sessionUser, $selectedUser)
 {
-    if ($user['Rolle'] == NUTZER) {
-        return getStampsAsStudent($user);
-    } elseif ($user['Rolle'] == LEHRER) {
-        return getStampsAsTeacher($user);
-    } elseif ($user['Rolle'] == ADMIN) {
-        return getStampsAsAdmin();
+    global $db;
+    $parameter = array();
+    if ($selectedUser['Rolle'] == LEHRER) {
+        $query =
+            'SELECT s.Id, s.Text, s.Bild, empfäger.Name as Empfänger, k.Id as Kurs, kom.Name as Kompetenz, Datum
+            FROM Stempel s, Nutzer empfäger, Nutzer aussteller, Kurs k, Kompetenz kom
+            WHERE s.Empfänger = empfäger.Id
+            AND s.Aussteller = aussteller.Id
+            AND s.Kurs = k.Id
+            AND k.Lehrer = ?
+            AND s.Kompetenz = kom.Id';
+        $parameter[] = $selectedUser['Id'];
+    } else {
+        $query =
+            'SELECT s.Id, s.Text, s.Bild, empfäger.Name as Empfänger, aussteller.Name as Aussteller, k.Id as Kurs, kom.Name as Kompetenz, Datum
+            FROM Stempel s, Nutzer empfäger, Nutzer aussteller, Kurs k, Kompetenz kom
+            WHERE s.Empfänger = empfäger.Id
+            AND s.Aussteller = aussteller.Id
+            AND s.Kurs = k.Id
+            AND s.Kompetenz = kom.Id';
     }
-    return array();
-}
-
-function getStampsAsAdmin()
-{
-    global $db;
-    $query =
-        'SELECT s.Id, s.Text, s.Bild, e.Name as Empfänger, a.Name as Aussteller, k.Name as Kurs, kom.Name as Kompetenz, Datum
-        FROM Stempel s, Nutzer e, Nutzer a, Kurs k, Kompetenz kom
-        WHERE s.Empfänger = e.Id
-        AND s.Aussteller = a.Id
-        AND s.Kurs = k.Id
-        AND s.Kompetenz = kom.Id';
     $stmt = $db->prepare($query);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-function getStampsAsTeacher()
-{
-    global $db;
-    $query =
-        'SELECT s.Id, s.Text, s.Bild, e.Name as Empfänger, a.Name as Aussteller, k.Name as Kurs, kom.Name as Kompetenz, Datum
-        FROM Stempel s, Nutzer e, Nutzer a, Kurs k, Kompetenz kom
-        WHERE s.Empfänger = e.Id
-        AND s.Aussteller = a.Id
-        AND s.Kurs = k.Id
-        AND s.Kompetenz = kom.Id';
-    $stmt = $db->prepare($query);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-function getStampsAsStudent()
-{
-    global $db;
-    $query =
-        'SELECT s.Id, s.Text, s.Bild, e.Name as Empfänger, a.Name as Aussteller, k.Name as Kurs, kom.Name as Kompetenz, Datum
-        FROM Stempel s, Nutzer e, Nutzer a, Kurs k, Kompetenz kom
-        WHERE s.Empfänger = e.Id
-        AND s.Aussteller = a.Id
-        AND s.Kurs = k.Id
-        AND s.Kompetenz = kom.Id';
-    $stmt = $db->prepare($query);
-    $stmt->execute();
+    $stmt->execute($parameter);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 /**
  * Request functions
  */
-function getRequests($user)
+function getRequests($sessionUser, $selectedUser)
 {
-    if ($user['Rolle'] == LEHRER) {
-        return getRequestsAsTeacher($user);
-    } elseif ($user['Rolle'] == ADMIN) {
-        return getRequestsAsAdmin();
+    global $db;
+    $parameter = array();
+    $query =
+        'SELECT a.Id, s.Name as Schüler, k.Id as Kurs 
+            FROM Anfrage a, Nutzer s, Kurs k
+            WHERE a.Schüler = s.Id
+            AND a.Kurs = k.Id';
+    if ($selectedUser['Rolle'] == LEHRER) {
+        $query .= ' AND k.Lehrer = ?';
+        $parameter[] = $selectedUser['Id'];
     }
-    return array();
-}
-
-function getRequestsAsAdmin()
-{
-    global $db;
-    $query =
-        'SELECT r.Id, s.Name as Schüler, k.Name as Kurs 
-        FROM Anfrage r, Nutzer s, Kurs k
-        WHERE r.Schüler = s.Id
-        AND r.Kurs = k.Id';
     $stmt = $db->prepare($query);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-function getRequestsAsTeacher()
-{
-    global $db;
-    $query =
-        'SELECT r.Id, s.Name as Schüler, k.Name as Kurs 
-        FROM Anfrage r, Nutzer s, Kurs k
-        WHERE r.Schüler = s.Id
-        AND r.Kurs = k.Id';
-    $stmt = $db->prepare($query);
-    $stmt->execute();
+    $stmt->execute($parameter);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
