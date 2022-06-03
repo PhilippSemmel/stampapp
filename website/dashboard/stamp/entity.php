@@ -6,7 +6,7 @@ if (!isset($_SESSION["name"])) {
     exit;
 }
 
-$stamp = getStampById($_GET['id']);
+$selectedStamp = getStampById($_GET['id']);
 ?>
 
 <!DOCTYPE html>
@@ -21,14 +21,15 @@ $stamp = getStampById($_GET['id']);
 </head>
 <body>
 <?php include '../../header.inc.php'; ?>
+<?php include 'buttonlist.inc.php'; ?>
 <div id="content">
-    <p><b>Id</b>: <?= $stamp['Id'] ?></p>
-    <p><b>Text</b>: <?= $stamp['Text'] ?></p>
-    <p><b>Empfänger</b>: <a href="../user/entity.php?id=<?= $stamp['Empfänger'] ?>"><?= getUserNameById($stamp['Empfänger']) ?></a</p>
-    <p><b>Aussteller</b>: <a href="../user/entity.php?id=<?= $stamp['Aussteller'] ?>"><?= getUserNameById($stamp['Aussteller']) ?></a</p>
-    <p><b>Kurs</b>: <a href="../course/entity.php?id=<?= $stamp['Kurs'] ?>"><?= getCourseNameById($stamp['Kurs']) ?></a></p>
-    <p><b>Kompetenz</b>: <a href="../../competence.php?id=<?= $stamp['Kompetenz'] ?>"></a><?= getCompetenceNameById($stamp['Kompetenz']) ?></p>
-    <p><b>Datum</b>: <?= $stamp['Datum'] ?></p>
+    <p><b>Id</b>: <?= $selectedStamp['Id'] ?></p>
+    <p><b>Text</b>: <?= $selectedStamp['Text'] ?></p>
+    <p><b>Empfänger</b>: <a href="../user/entity.php?id=<?= $selectedStamp['Empfänger'] ?>"><?= getUserNameById($selectedStamp['Empfänger']) ?></a</p>
+    <p><b>Aussteller</b>: <a href="../user/entity.php?id=<?= $selectedStamp['Aussteller'] ?>"><?= getUserNameById($selectedStamp['Aussteller']) ?></a</p>
+    <p><b>Kurs</b>: <a href="../course/entity.php?id=<?= $selectedStamp['Kurs'] ?>"><?= getCourseNameById($selectedStamp['Kurs']) ?></a></p>
+    <p><b>Kompetenz</b>: <a href="../../competence.php?id=<?= $selectedStamp['Kompetenz'] ?>"></a><?= getCompetenceNameById($selectedStamp['Kompetenz']) ?></p>
+    <p><b>Datum</b>: <?= $selectedStamp['Datum'] ?></p>
 </div>
 <?php include '../../footer.inc.php'; ?>
 </body>

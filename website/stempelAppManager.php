@@ -119,11 +119,21 @@ function getUserIdByName($name)
     return $user['Id'];
 }
 
-function getUsers($sessionUser, $selectedUser)
+function getUsers($selectedUser)
 {
     global $db;
     $parameters = array();
-    if ($selectedUser['Rolle'] == LEHRER) {
+    if ($selectedUser['Rolle'] == SCHUELER) {
+        $query =
+            'SELECT lehrer.Id, lehrer.Name
+            FROM Nutzer schüler, Schüler_Kurs sk, Kurs k, Nutzer lehrer
+            WHERE schüler.Id = ?
+            AND sk.Schüler = schüler.Id
+            AND sk.Kurs = k.Id
+            AND k.Lehrer = lehrer.Id
+            GROUP BY lehrer.Id';
+        $parameters[] = $selectedUser['Id'];
+    } elseif ($selectedUser['Rolle'] == LEHRER) {
         $query =
             'SELECT n.Id, n.Name
             FROM Nutzer n, Schüler_Kurs sk, Kurs k
@@ -134,7 +144,7 @@ function getUsers($sessionUser, $selectedUser)
     } else {
         $query =
             'SELECT n.Id, n.Name, n.Rolle, n.Freigeschaltet
-        FROM Nutzer n';
+            FROM Nutzer n';
     }
     $stmt = $db->prepare($query);
     $stmt->execute($parameters);
@@ -185,11 +195,21 @@ function getCourseNameById($id)
 }
 
 
-function getCourses($sessionUser, $selectedUser)
+function getCourses($selectedUser)
 {
     global $db;
     $parameters = array();
-    if ($selectedUser['Rolle'] == LEHRER) {
+    if ($selectedUser['Rolle'] == SCHUELER) {
+        $query =
+            'SELECT k.Id, k.Name, k.Stufe, k.Fach, l.Id as Lehrer, count(sk.Id) as "Anzahl Schüler"
+            FROM Kurs k, Schüler_Kurs sk, Nutzer l, Schüler_Kurs sk2
+            WHERE sk.Kurs = k.Id
+            AND k.Lehrer = l.Id
+            AND sk2.Kurs = sk.Kurs
+            AND sk2.Schüler = ?
+            GROUP BY k.Id';
+        $parameters[] = $selectedUser['Id'];
+    } elseif ($selectedUser['Rolle'] == LEHRER) {
         $query =
             'SELECT k.Id, k.Name, k.Stufe, k.Fach, count(sk.Id) as "Anzahl Schüler"
             FROM Kurs k, Schüler_Kurs sk, Nutzer l
@@ -235,9 +255,19 @@ function getStamps($sessionUser, $selectedUser)
 {
     global $db;
     $parameter = array();
-    if ($selectedUser['Rolle'] == LEHRER) {
+    if ($selectedUser['Rolle'] == SCHUELER) {
         $query =
-            'SELECT s.Id, s.Text, s.Bild, empfäger.Id as Empfänger, k.Id as Kurs, kom.Name as Kompetenz, Datum
+            'SELECT s.Id, s.Text, s.Bild, aussteller.Id as Aussteller, k.Id as Kurs, kom.Id as Kompetenz, Datum
+            FROM Stempel s, Nutzer empfäger, Nutzer aussteller, Kurs k, Kompetenz kom
+            WHERE empfäger.Id = ?
+            AND s.Empfänger = empfäger.Id
+            AND s.Aussteller = aussteller.Id
+            AND s.Kurs = k.Id
+            AND s.Kompetenz = kom.Id';
+        $parameter[] = $selectedUser['Id'];
+    } elseif ($selectedUser['Rolle'] == LEHRER) {
+        $query =
+            'SELECT s.Id, s.Text, s.Bild, empfäger.Id as Empfänger, k.Id as Kurs, kom.Id as Kompetenz, Datum
             FROM Stempel s, Nutzer empfäger, Nutzer aussteller, Kurs k, Kompetenz kom
             WHERE s.Empfänger = empfäger.Id
             AND s.Aussteller = aussteller.Id
@@ -247,7 +277,7 @@ function getStamps($sessionUser, $selectedUser)
         $parameter[] = $selectedUser['Id'];
     } else {
         $query =
-            'SELECT s.Id, s.Text, s.Bild, empfäger.Id as Empfänger, aussteller.Id as Aussteller, k.Id as Kurs, kom.Name as Kompetenz, Datum
+            'SELECT s.Id, s.Text, s.Bild, empfäger.Id as Empfänger, aussteller.Id as Aussteller, k.Id as Kurs, kom.Id as Kompetenz, Datum
             FROM Stempel s, Nutzer empfäger, Nutzer aussteller, Kurs k, Kompetenz kom
             WHERE s.Empfänger = empfäger.Id
             AND s.Aussteller = aussteller.Id
@@ -273,6 +303,9 @@ function getRequests($sessionUser, $selectedUser)
             AND a.Kurs = k.Id';
     if ($selectedUser['Rolle'] == LEHRER) {
         $query .= ' AND k.Lehrer = ?';
+        $parameter[] = $selectedUser['Id'];
+    } elseif ($selectedUser['Rolle'] == SCHUELER) {
+        $query .= ' AND s.Id = ?';
         $parameter[] = $selectedUser['Id'];
     }
     $stmt = $db->prepare($query);

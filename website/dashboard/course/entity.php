@@ -22,13 +22,14 @@ $selectedCourse = getCourseById($_GET['id']);
 </head>
 <body>
 <?php include '../../header.inc.php'; ?>
+<?php include 'buttonlist.inc.php'; ?>
 <main>
     <div class="table">
         <p><b>Id</b>: <?= $selectedCourse['Id'] ?></p>
         <p><b>Name</b>: <?= $selectedCourse['Name'] ?></p>
         <p><b>Stufe</b>: <?= $selectedCourse['Stufe'] ?></p>
         <p><b>Fach</b>: <?= $selectedCourse['Fach'] ?></p>
-        <p><b>Lehrer</b>: <?= $selectedCourse['Lehrer'] ?></p>
+        <p><b>Lehrer</b>: <a href="../user/entity.php?id=<?= $selectedCourse['Lehrer'] ?>"><?= getUserNameById($selectedCourse['Lehrer']) ?></a></p>
     </div>
 </main>
 <?php include '../../footer.inc.php'; ?>
