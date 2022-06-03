@@ -2,12 +2,12 @@
 require_once "../../stempelAppManager.php";
 
 if (!isset($_SESSION["name"])) {
-    header("Location: ../login/login.php");
+    header("Location: ../../login/login.php");
     exit;
 }
 
-$sessionUser = getUserByName($_SESSION['name']);
-$selectedCourse = getCourseById($_GET['id']);
+$request = getRequestById($_GET['id']);
+
 ?>
 
 <!DOCTYPE html>
@@ -22,15 +22,11 @@ $selectedCourse = getCourseById($_GET['id']);
 </head>
 <body>
 <?php include '../../header.inc.php'; ?>
-<main>
-    <div class="table">
-        <p><b>Id</b>: <?= $selectedCourse['Id'] ?></p>
-        <p><b>Name</b>: <?= $selectedCourse['Name'] ?></p>
-        <p><b>Stufe</b>: <?= $selectedCourse['Stufe'] ?></p>
-        <p><b>Fach</b>: <?= $selectedCourse['Fach'] ?></p>
-        <p><b>Lehrer</b>: <?= $selectedCourse['Lehrer'] ?></p>
-    </div>
-</main>
+<div id="content">
+<p><b>Id</b>: <?= $request['Id'] ?></p>
+<p><b>Schüler</b>: <a href="../user/entity.php?id=<?= $request['Schüler'] ?>"><?= getUserNameById($request['Schüler']) ?></a></p>
+<p><b>Kurs</b>: <a href="../course/entity.php?id=<?= $request['Kurs'] ?>"><?= getCourseNameById($request['Kurs']) ?></a></p>
+</div>
 <?php include '../../footer.inc.php'; ?>
 </body>
 </html>

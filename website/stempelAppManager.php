@@ -48,6 +48,20 @@ function getCompetenceById($id)
     return $stmt->fetch();
 }
 
+function getCompetenceNameById($id)
+{
+    global $db;
+    $query =
+        'SELECT Name
+        FROM Kompetenz 
+        WHERE Id = :id';
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(":id", $id);
+    $stmt->execute();
+    $competence = $stmt->fetch();
+    return $competence['Name'];
+}
+
 /**
  * user functions
  */
@@ -78,13 +92,27 @@ function getUserById($id)
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
+function getUserNameById($id)
+{
+    global $db;
+    $query =
+        'SELECT Name
+        FROM Nutzer
+        WHERE Id = :id';
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(":id", $id);
+    $stmt->execute();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $user['Name'];
+}
+
 function getUsers($sessionUser, $selectedUser)
 {
     global $db;
     $parameters = array();
     if ($selectedUser['Rolle'] == LEHRER) {
         $query =
-                'SELECT n.Id, n.Name
+            'SELECT n.Id, n.Name
             FROM Nutzer n, Schüler_Kurs sk, Kurs k
             WHERE sk.Schüler = n.Id
             AND sk.Kurs = k.Id
@@ -129,6 +157,20 @@ function getCourseById($id)
     return $stmt->fetch();
 }
 
+function getCourseNameById($id)
+{
+    global $db;
+    $query =
+        'SELECT Name
+        FROM Kurs
+        WHERE Id = :id';
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(":id", $id);
+    $stmt->execute();
+    $course = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $course['Name'];
+}
+
 
 function getCourses($sessionUser, $selectedUser)
 {
@@ -159,6 +201,23 @@ function getCourses($sessionUser, $selectedUser)
 /**
  * Stamp functions
  */
+function getStampById($id)
+{
+    global $db;
+    $query =
+        'SELECT s.Id, s.Text, s.Bild, e.Id as Empfänger, a.Id as Aussteller, k.Id as Kurs, kom.Id as Kompetenz, Datum
+        FROM Stempel s, Nutzer e, Nutzer a, Kurs k, Kompetenz kom
+        WHERE s.Empfänger = e.Id
+        AND s.Aussteller = a.Id
+        AND s.Kurs = k.Id
+        AND s.Kompetenz = kom.Id
+        AND s.Id = :id';
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(":id", $id);
+    $stmt->execute();
+    return $stmt->fetch();
+}
+
 function getStamps($sessionUser, $selectedUser)
 {
     global $db;
@@ -206,4 +265,19 @@ function getRequests($sessionUser, $selectedUser)
     $stmt = $db->prepare($query);
     $stmt->execute($parameter);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getRequestById($id)
+{
+    global $db;
+    $query =
+        'SELECT r.Id, s.Id as Schüler, k.Id as Kurs 
+        FROM Anfrage r, Nutzer s, Kurs k
+        WHERE r.Schüler = s.Id
+        AND r.Kurs = k.Id
+        AND r.Id = :id';
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(":id", $id);
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC);
 }
