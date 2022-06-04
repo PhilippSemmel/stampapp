@@ -12,30 +12,19 @@ $users = getUsers($selectedUser);
 
 function printColumnNames()
 {
-    global $users, $sessionUser;
-    if (userIsAdmin($sessionUser)) {
-        foreach ($users[0] as $key => $user) { ?>
-            <th><?= $key ?></th>
-        <?php }
-    } elseif (userIsTeacher($sessionUser)) { ?>
-        <th>Schüler</th>
-    <?php } else { ?>
-        <th>Lehrer</th>
+    global $users;
+    foreach ($users[0] as $key => $userSelected) { ?>
+        <th><?= $key ?></th>
     <?php }
 }
 
 function printEntityRow($user)
-{
-    global $sessionUser ?>
+{ ?>
     <tr>
-        <?php if (userIsAdmin($sessionUser)) { ?>
-            <td><?= $user['Id'] ?></td>
-            <td><a href="entity.php?id=<?= $user['Id'] ?>"><?= $user['Name'] ?></a></td>
-            <td><?= ROLLEN_NAMEN[$user['Rolle']] ?></td>
-            <td><?= getUnlockedText($user) ?></td>
-        <?php } else { ?>
-            <td><a href="entity.php?id=<?= $user['Id'] ?>"><?= $user['Name'] ?></a></td>
-        <?php } ?>
+        <td><?= $user['Id'] ?></td>
+        <td><a href="entity.php?id=<?= $user['Id'] ?>"><?= $user['Name'] ?></a></td>
+        <td><?= ROLLEN_NAMEN[$user['Rolle']] ?></td>
+        <td><?= getUnlockedText($user) ?></td>
     </tr>
 <?php }
 

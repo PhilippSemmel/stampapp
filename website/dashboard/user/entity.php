@@ -29,7 +29,7 @@ $selectedUser = getUserById($_GET['id']);
         <p><b>Id</b>: <?= $selectedUser['Id'] ?></p>
         <p><b>Name</b>: <?= $selectedUser['Name'] ?></p>
         <p><b>Rolle</b>: <?= ROLLEN_NAMEN[$selectedUser['Rolle']] ?></p>
-        <?php if ($selectedUser['Rolle'] == LEHRER) { ?>
+        <?php if (userIsTeacher($selectedUser)) { ?>
             <p><b>Freigeschaltet</b>: <?= getUnlockedText($selectedUser) ?></p>
         <?php } ?>
     </div>
