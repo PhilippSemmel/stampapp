@@ -14,7 +14,7 @@ const ROLLEN_NAMEN = array(0 => 'Schüler', 1 => 'Lehrer', 2 => 'Admin');
 
 function getUnlockedText($user): string
 {
-    if (!userIsTeacher($user)) {
+    if (!isUserTeacher($user)) {
         return '';
     }
     if ($user['Freigeschaltet']) {
@@ -123,7 +123,7 @@ function getUsers($selectedUser)
 {
     global $db;
     $parameters = array();
-    if (userIsStudent($selectedUser)) {
+    if (isUserStudent($selectedUser)) {
         $query =
             'SELECT lehrer.Id, lehrer.Name
             FROM Nutzer schüler, Schüler_Kurs sk, Kurs k, Nutzer lehrer
@@ -133,7 +133,7 @@ function getUsers($selectedUser)
             AND k.Lehrer = lehrer.Id
             GROUP BY lehrer.Id';
         $parameters[] = $selectedUser['Id'];
-    } elseif (userIsTeacher($selectedUser)) {
+    } elseif (isUserTeacher($selectedUser)) {
         $query =
             'SELECT n.Id, n.Name
             FROM Nutzer n, Schüler_Kurs sk, Kurs k
@@ -164,17 +164,17 @@ function addNewUser($name, $pw)
     $stmt->execute();
 }
 
-function userIsAdmin($user): bool
+function isUserAdmin($user): bool
 {
     return $user['Rolle'] == ADMIN;
 }
 
-function userIsTeacher($user): bool
+function isUserTeacher($user): bool
 {
     return $user['Rolle'] == LEHRER;
 }
 
-function userIsStudent($user): bool
+function isUserStudent($user): bool
 {
     return $user['Rolle'] == SCHUELER;
 }
@@ -214,7 +214,7 @@ function getCourses($selectedUser)
 {
     global $db;
     $parameters = array();
-    if (userIsStudent($selectedUser)) {
+    if (isUserStudent($selectedUser)) {
         $query =
             'SELECT k.Id, k.Name, k.Stufe, k.Fach, l.Id as Lehrer, count(sk.Id) as "Anzahl Schüler"
             FROM Kurs k, Schüler_Kurs sk, Nutzer l, Schüler_Kurs sk2
@@ -224,7 +224,7 @@ function getCourses($selectedUser)
             AND sk2.Schüler = ?
             GROUP BY k.Id';
         $parameters[] = $selectedUser['Id'];
-    } elseif (userIsTeacher($selectedUser)) {
+    } elseif (isUserTeacher($selectedUser)) {
         $query =
             'SELECT k.Id, k.Name, k.Stufe, k.Fach, count(sk.Id) as "Anzahl Schüler"
             FROM Kurs k, Schüler_Kurs sk, Nutzer l
@@ -270,7 +270,7 @@ function getStamps($selectedUser)
 {
     global $db;
     $parameter = array();
-    if (userIsStudent($selectedUser)) {
+    if (isUserStudent($selectedUser)) {
         $query =
             'SELECT s.Id, s.Text, s.Bild, aussteller.Id as Aussteller, k.Id as Kurs, kom.Id as Kompetenz, Datum
             FROM Stempel s, Nutzer empfäger, Nutzer aussteller, Kurs k, Kompetenz kom
@@ -280,7 +280,7 @@ function getStamps($selectedUser)
             AND s.Kurs = k.Id
             AND s.Kompetenz = kom.Id';
         $parameter[] = $selectedUser['Id'];
-    } elseif (userIsTeacher($selectedUser)) {
+    } elseif (isUserTeacher($selectedUser)) {
         $query =
             'SELECT s.Id, s.Text, s.Bild, empfäger.Id as Empfänger, k.Id as Kurs, kom.Id as Kompetenz, Datum
             FROM Stempel s, Nutzer empfäger, Nutzer aussteller, Kurs k, Kompetenz kom
@@ -316,10 +316,10 @@ function getRequests($sessionUser, $selectedUser)
             FROM Anfrage a, Nutzer s, Kurs k
             WHERE a.Schüler = s.Id
             AND a.Kurs = k.Id';
-    if (userIsTeacher($selectedUser)) {
+    if (isUserTeacher($selectedUser)) {
         $query .= ' AND k.Lehrer = ?';
         $parameter[] = $selectedUser['Id'];
-    } elseif (userIsStudent($selectedUser)) {
+    } elseif (isUserStudent($selectedUser)) {
         $query .= ' AND s.Id = ?';
         $parameter[] = $selectedUser['Id'];
     }

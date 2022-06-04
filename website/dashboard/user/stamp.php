@@ -8,30 +8,35 @@ if (!isset($_SESSION["name"])) {
 
 $sessionUser = getUserByName($_SESSION['name']);
 $selectedUser = getUserById($_GET['id']);
-$stamps = getStamps($sessionUser, $selectedUser);
+$stamps = getStamps($selectedUser);
 
 function printColumnNames()
 {
-    global $stamps;
-    foreach ($stamps[0] as $key => $stamp) { ?>
+    global $stamps, $sessionUser;
+    foreach ($stamps[0] as $key => $stamp) {
+        if ($key == 'Id' && !isUserAdmin($sessionUser)) { continue; }?>
         <th><?= $key ?></th>
     <?php }
 }
 
 function printEntityRow($stamp)
-{ ?>
+{
+    global $selectedUser, $sessionUser ?>
     <tr>
-        <?php foreach ($stamp as $key => $val) {
-            if ($key == 'Empfänger' || $key == 'Aussteller') { ?>
-                <td><a href='entity.php?id=<?= $val ?>'><?= getUserNameById($val) ?></a></td>
-            <?php } elseif ($key == 'Kurs') { ?>
-                <td><a href='../course/entity.php?id=<?= $val ?>'><?= getCourseNameById($val) ?></a></td>
-            <?php } elseif ($key == 'Text') { ?>
-                <td><a href='../stamp/entity.php?id=<?= $stamp['Id'] ?>'><?= $val ?></a></td>
-            <?php } else { ?>
-                <td><?= $val ?></td>
-            <?php } ?>
+        <?php if (isUserAdmin($sessionUser)) { ?>
+            <td><?= $stamp['Id'] ?></td>
         <?php } ?>
+        <td><a href="../stamp/entity.php?id=<?= $stamp['Id'] ?>"><?= $stamp['Text'] ?></a></td>
+        <td><?= $stamp['Bild'] ?></td>
+        <?php if (!isUserStudent($selectedUser)) { ?>
+            <td><a href="entity.php?id=<?= $stamp['Empfänger'] ?>"><?= getUserNameById($stamp['Empfänger']) ?></a></td>
+        <?php } ?>
+        <?php if (!isUserTeacher($selectedUser)) { ?>
+            <td><a href="entity.php?id=<?= $stamp['Aussteller'] ?>"><?= getUserNameById($stamp['Aussteller']) ?></a></td>
+        <?php } ?>
+        <td><a href="../course/entity.php?id=<?= $stamp['Kurs'] ?>"><?= getCourseNameById($stamp['Kurs']) ?></a></td>
+        <td><a href="../../competence.php?id=<?= $stamp['Kompetenz'] ?>"><?= getCompetenceNameById($stamp['Kompetenz']) ?></a></td>
+        <td><?= $stamp['Datum'] ?></td>
     </tr>
 <?php }
 

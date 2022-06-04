@@ -14,8 +14,8 @@ function printColumnNames()
 {
     global $courses, $sessionUser;
     foreach ($courses[0] as $key => $course) {
-        if (($key == 'Id' && !userIsAdmin($sessionUser))
-            || ($key == 'Anzahl Schüler' && userIsStudent($sessionUser))) {
+        if (($key == 'Id' && !isUserAdmin($sessionUser))
+            || ($key == 'Anzahl Schüler' && isUserStudent($sessionUser))) {
             continue;
         } ?>
         <th><?= $key ?></th>
@@ -26,14 +26,14 @@ function printEntityRow($course)
 {
     global $sessionUser ?>
     <tr>
-        <?php if (userIsAdmin($sessionUser)) { ?>
+        <?php if (isUserAdmin($sessionUser)) { ?>
             <td><?= $course['Id'] ?></td>
         <?php } ?>
-        <td><?= $course['Name'] ?></td>
+        <td><a href="../course/entity.php?id=<?= $course['Id'] ?>"><?= $course['Name'] ?></a></td>
         <td><?= $course['Stufe'] ?></td>
         <td><?= $course['Fach'] ?></td>
         <td><a href='entity.php?id=<?= $course['Lehrer'] ?>'><?= getUserNameById($course['Lehrer']) ?></a></td>
-        <?php if (!userIsStudent($sessionUser)) { ?>
+        <?php if (!isUserStudent($sessionUser)) { ?>
             <td><?= $course['Anzahl Schüler'] ?></td>
         <?php } ?>
     </tr>

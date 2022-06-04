@@ -13,11 +13,11 @@ $users = getUsers($selectedUser);
 function printColumnNames()
 {
     global $users, $sessionUser;
-    if (userIsAdmin($sessionUser)) {
+    if (isUserAdmin($sessionUser)) {
         foreach ($users[0] as $key => $user) { ?>
             <th><?= $key ?></th>
         <?php }
-    } elseif (userIsTeacher($sessionUser)) { ?>
+    } elseif (isUserTeacher($sessionUser)) { ?>
         <th>Schüler</th>
     <?php } else { ?>
         <th>Lehrer</th>
@@ -28,7 +28,7 @@ function printEntityRow($user)
 {
     global $sessionUser ?>
     <tr>
-        <?php if (userIsAdmin($sessionUser)) { ?>
+        <?php if (isUserAdmin($sessionUser)) { ?>
             <td><?= $user['Id'] ?></td>
             <td><a href="entity.php?id=<?= $user['Id'] ?>"><?= $user['Name'] ?></a></td>
             <td><?= ROLLEN_NAMEN[$user['Rolle']] ?></td>
