@@ -25,7 +25,9 @@ $selectedCourse = getCourseById($_GET['id']);
 <?php include 'buttonlist.inc.php'; ?>
 <main>
     <div class="table">
+        <?php if (isUserAdmin($sessionUser)) { ?>
         <p><b>Id</b>: <?= $selectedCourse['Id'] ?></p>
+        <?php } ?>
         <p><b>Name</b>: <?= $selectedCourse['Name'] ?></p>
         <p><b>Stufe</b>: <?= $selectedCourse['Stufe'] ?></p>
         <p><b>Fach</b>: <?= $selectedCourse['Fach'] ?></p>

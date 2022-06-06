@@ -8,31 +8,32 @@ if (!isset($_SESSION["name"])) {
 
 $sessionUser = getUserByName($_SESSION['name']);
 $selectedUser = getUserById($_GET['id']);
-$requests = getRequests($sessionUser, $selectedUser);
+$requests = getRequests($selectedUser);
 
 function printColumnNames()
 {
-    global $requests;
-    foreach ($requests[0] as $key => $request) { ?>
+    global $requests, $sessionUser;
+    foreach ($requests[0] as $key => $request) {
+        if ($key == 'Id' && !isUserAdmin($sessionUser)) { continue; } ?>
         <th><?= $key ?></th>
     <?php }
 }
 
 function printEntityRow($request)
-{ ?>
+{
+    global $sessionUser ?>
     <tr>
-        <?php foreach ($request as $key => $val) {
-            if ($key == 'Schüler') { ?>
-                <td><a href="entity.php?id=<?= $val ?>"><?= getUserNameById($val) ?></a></td>
-            <?php } elseif ($key == 'Kurs') { ?>
-                <td><a href='../course/entity.php?id=<?= $val ?>'><?= getCourseNameById($val) ?></a></td>
-            <?php } else { ?>
-                <td><?= $val ?></td>
-            <?php } ?>
+        <?php if (isUserAdmin($sessionUser)) { ?>
+        <td><?= $request['Id'] ?></td>
+        <?php } ?>
+        <td><a href="entity.php?id=<?= $request['Schüler'] ?>"><?= getUserNameById($request['Schüler']) ?></a></td>
+        <?php if (!isUserStudent($sessionUser)) { ?>
+            <td><a href='../course/entity.php?id=<?= $request['Kurs'] ?>'><?= getCourseNameById($request['Kurs']) ?></a></td>
+        <?php } else { ?>
+            <td><?= getCourseNameById($request['Kurs']) ?></td>
         <?php } ?>
     </tr>
-    <?php
-}
+<?php }
 
 ?>
 

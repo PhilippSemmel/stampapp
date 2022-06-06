@@ -26,7 +26,9 @@ $selectedUser = getUserById($_GET['id']);
 <?php include 'buttonlist.inc.php'; ?>
 <main>
     <div class="table">
+        <?php if (isUserAdmin($sessionUser)) { ?>
         <p><b>Id</b>: <?= $selectedUser['Id'] ?></p>
+        <?php } ?>
         <p><b>Name</b>: <?= $selectedUser['Name'] ?></p>
         <p><b>Rolle</b>: <?= ROLLEN_NAMEN[$selectedUser['Rolle']] ?></p>
         <?php if (isUserTeacher($selectedUser)) { ?>

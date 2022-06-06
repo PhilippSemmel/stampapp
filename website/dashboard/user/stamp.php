@@ -14,7 +14,7 @@ function printColumnNames()
 {
     global $stamps, $sessionUser;
     foreach ($stamps[0] as $key => $stamp) {
-        if ($key == 'Id' && !isUserAdmin($sessionUser)) { continue; }?>
+        if ($key == 'Id' && !isUserAdmin($sessionUser)) { continue; } ?>
         <th><?= $key ?></th>
     <?php }
 }

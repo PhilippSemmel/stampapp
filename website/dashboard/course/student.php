@@ -7,24 +7,28 @@ if (!isset($_SESSION["name"])) {
 }
 
 $sessionUser = getUserByName($_SESSION['name']);
-$selectedUser = getUserById($_GET['id']);
-$users = getUsers($selectedUser);
+$selectedCourse = getUserById($_GET['id']);
+$users = getUsersForCourse($selectedCourse);
 
 function printColumnNames()
 {
-    global $users;
-    foreach ($users[0] as $key => $userSelected) { ?>
+    global $users, $sessionUser;
+    foreach ($users[0] as $key => $selectedCourse) {
+        if ($key == 'Id' && !isUserAdmin($sessionUser)) {
+            continue;
+        } ?>
         <th><?= $key ?></th>
     <?php }
 }
 
 function printEntityRow($user)
-{ ?>
+{
+    global $sessionUser ?>
     <tr>
-        <td><?= $user['Id'] ?></td>
-        <td><a href="entity.php?id=<?= $user['Id'] ?>"><?= $user['Name'] ?></a></td>
-        <td><?= ROLLEN_NAMEN[$user['Rolle']] ?></td>
-        <td><?= getUnlockedText($user) ?></td>
+        <?php if (isUserAdmin($sessionUser)) { ?>
+            <td><?= $user['Id'] ?></td>
+        <?php } ?>
+        <td><a href="../user/entity.php?id=<?= $user['Id'] ?>"><?= $user['Name'] ?></a></td>
     </tr>
 <?php }
 

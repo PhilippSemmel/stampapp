@@ -17,7 +17,7 @@ function getUnlockedText($user): string
     if (!isUserTeacher($user)) {
         return '';
     }
-    if ($user['Freigeschaltet']) {
+    if ($user['Freigeschaltet'] == 'true') {
         return 'Ja';
     } else {
         return 'Nein';
@@ -151,6 +151,21 @@ function getUsers($selectedUser)
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+function getUsersForCourse($course)
+{
+    global $db;
+    $query =
+        'SELECT n.Id, n.Name
+        FROM Nutzer n, Schüler_Kurs sk, Kurs k
+        WHERE sk.Schüler = n.Id
+        AND sk.Kurs = k.Id
+        AND k.Id = :id';
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':id', $course['Id']);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 function addNewUser($name, $pw)
 {
     global $db;
@@ -210,36 +225,59 @@ function getCourseNameById($id)
 }
 
 
-function getCourses($selectedUser)
+function getCourses($selectedUser, $sessionUser)
 {
     global $db;
     $parameters = array();
-    if (isUserStudent($selectedUser)) {
-        $query =
-            'SELECT k.Id, k.Name, k.Stufe, k.Fach, l.Id as Lehrer, count(sk.Id) as "Anzahl Schüler"
-            FROM Kurs k, Schüler_Kurs sk, Nutzer l, Schüler_Kurs sk2
-            WHERE sk.Kurs = k.Id
-            AND k.Lehrer = l.Id
-            AND sk2.Kurs = sk.Kurs
-            AND sk2.Schüler = ?
-            GROUP BY k.Id';
-        $parameters[] = $selectedUser['Id'];
-    } elseif (isUserTeacher($selectedUser)) {
-        $query =
-            'SELECT k.Id, k.Name, k.Stufe, k.Fach, count(sk.Id) as "Anzahl Schüler"
-            FROM Kurs k, Schüler_Kurs sk, Nutzer l
-            WHERE l.Id = ?
-            AND k.Lehrer = l.Id
-            AND sk.Kurs = k.Id
-            GROUP BY k.Id';
-        $parameters[] = $selectedUser['Id'];
-    } else {
-        $query =
-            'SELECT k.Id, k.Name, k.Stufe, k.Fach, l.Id as Lehrer, count(sk.Id) as "Anzahl Schüler"
-            FROM Kurs k, Schüler_Kurs sk, Nutzer l
-            WHERE sk.Kurs = k.Id
-            AND k.Lehrer = l.Id
-            GROUP BY k.Id';
+    if (isUserAdmin($sessionUser)) {
+        if (isUserStudent($selectedUser)) {
+            $query =
+                'SELECT k.Id, k.Name, k.Stufe, k.Fach, l.Id as Lehrer
+                FROM Kurs k, Schüler_Kurs sk, Nutzer l
+                WHERE sk.Kurs = k.Id
+                AND k.Lehrer = l.Id
+                AND sk.Schüler = ?
+                GROUP BY k.Id';
+            $parameters[] = $selectedUser['Id'];
+        } elseif (isUserTeacher($selectedUser)) {
+            $query =
+                'SELECT k.Id, k.Name, k.Stufe, k.Fach, count(sk.Id) as "Anzahl Schüler"
+                FROM Kurs k, Schüler_Kurs sk, Nutzer l
+                WHERE l.Id = ?
+                AND k.Lehrer = l.Id
+                AND sk.Kurs = k.Id
+                GROUP BY k.Id';
+            $parameters[] = $selectedUser['Id'];
+        } else {
+            $query =
+                'SELECT k.Id, k.Name, k.Stufe, k.Fach, l.Id as Lehrer, count(sk.Id) as "Anzahl Schüler"
+                FROM Kurs k, Schüler_Kurs sk, Nutzer l
+                WHERE sk.Kurs = k.Id
+                AND k.Lehrer = l.Id
+                GROUP BY k.Id';
+        }
+    } elseif (isUserTeacher($sessionUser)) {
+        $parameters[] = $sessionUser['Id'];
+        if ($selectedUser['Id'] == $sessionUser['Id']) {
+            $query =
+                'SELECT k.Id, k.Name, k.Stufe, k.Fach, count(sk.Id) as "Anzahl Schüler"
+                FROM Kurs k, Schüler_Kurs sk, Nutzer l
+                WHERE l.Id = ?
+                AND k.Lehrer = l.Id
+                AND sk.Kurs = k.Id
+                GROUP BY k.Id';
+        } else {
+            $query =
+                'SELECT k.Id, k.Name, k.Stufe, k.Fach, l.Id as Lehrer, count(sk.Id) as "Anzahl Schüler"
+                FROM Kurs k, Schüler_Kurs sk, Nutzer l, Schüler_Kurs sk2
+                WHERE l.Id = ?
+                AND k.Lehrer = l.Id
+                AND sk.Kurs = k.Id
+                AND sk2.Kurs = sk.Kurs
+                AND sk.Schüler = ?
+                GROUP BY k.Id';
+            $parameters[] = $selectedUser['Id'];
+        }
     }
     $stmt = $db->prepare($query);
     $stmt->execute($parameters);
@@ -273,18 +311,18 @@ function getStamps($selectedUser)
     if (isUserStudent($selectedUser)) {
         $query =
             'SELECT s.Id, s.Text, s.Bild, aussteller.Id as Aussteller, k.Id as Kurs, kom.Id as Kompetenz, Datum
-            FROM Stempel s, Nutzer empfäger, Nutzer aussteller, Kurs k, Kompetenz kom
-            WHERE empfäger.Id = ?
-            AND s.Empfänger = empfäger.Id
+            FROM Stempel s, Nutzer empfänger, Nutzer aussteller, Kurs k, Kompetenz kom
+            WHERE empfänger.Id = ?
+            AND s.Empfänger = empfänger.Id
             AND s.Aussteller = aussteller.Id
             AND s.Kurs = k.Id
             AND s.Kompetenz = kom.Id';
         $parameter[] = $selectedUser['Id'];
     } elseif (isUserTeacher($selectedUser)) {
         $query =
-            'SELECT s.Id, s.Text, s.Bild, empfäger.Id as Empfänger, k.Id as Kurs, kom.Id as Kompetenz, Datum
-            FROM Stempel s, Nutzer empfäger, Nutzer aussteller, Kurs k, Kompetenz kom
-            WHERE s.Empfänger = empfäger.Id
+            'SELECT s.Id, s.Text, s.Bild, empfänger.Id as Empfänger, k.Id as Kurs, kom.Id as Kompetenz, Datum
+            FROM Stempel s, Nutzer empfänger, Nutzer aussteller, Kurs k, Kompetenz kom
+            WHERE s.Empfänger = empfänger.Id
             AND s.Aussteller = aussteller.Id
             AND s.Kurs = k.Id
             AND k.Lehrer = ?
@@ -292,9 +330,9 @@ function getStamps($selectedUser)
         $parameter[] = $selectedUser['Id'];
     } else {
         $query =
-            'SELECT s.Id, s.Text, s.Bild, empfäger.Id as Empfänger, aussteller.Id as Aussteller, k.Id as Kurs, kom.Id as Kompetenz, Datum
-            FROM Stempel s, Nutzer empfäger, Nutzer aussteller, Kurs k, Kompetenz kom
-            WHERE s.Empfänger = empfäger.Id
+            'SELECT s.Id, s.Text, s.Bild, empfänger.Id as Empfänger, aussteller.Id as Aussteller, k.Id as Kurs, kom.Id as Kompetenz, Datum
+            FROM Stempel s, Nutzer empfänger, Nutzer aussteller, Kurs k, Kompetenz kom
+            WHERE s.Empfänger = empfänger.Id
             AND s.Aussteller = aussteller.Id
             AND s.Kurs = k.Id
             AND s.Kompetenz = kom.Id';
@@ -304,10 +342,39 @@ function getStamps($selectedUser)
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+function getStampsForCourse($course, $sessionUser)
+{
+    global $db;
+    $parameters = array();
+    $parameters[] = $course['Id'];
+    if (isUserStudent($sessionUser)) {
+        $query =
+            'SELECT s.Id, s.Text, s.Bild, aussteller.Id as Aussteller, kom.Id as Kompetenz, Datum
+        FROM Stempel s, Nutzer empfänger, Nutzer aussteller, Kompetenz kom
+        WHERE s.Kurs = ?
+        AND s.Empfänger = empfänger.Id
+        AND empfänger.Id = ?
+        AND s.Aussteller = aussteller.Id
+        AND s.Kompetenz = kom.Id';
+        $parameters[] = $sessionUser['Id'];
+    } else {
+        $query =
+            'SELECT s.Id, s.Text, s.Bild, empfänger.Id as Empfänger, aussteller.Id as Aussteller, kom.Id as Kompetenz, Datum
+        FROM Stempel s, Nutzer empfänger, Nutzer aussteller, Kompetenz kom
+        WHERE s.Kurs = ?
+        AND s.Empfänger = empfänger.Id
+        AND s.Aussteller = aussteller.Id
+        AND s.Kompetenz = kom.Id';
+    }
+    $stmt = $db->prepare($query);
+    $stmt->execute($parameters);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 /**
  * request functions
  */
-function getRequests($sessionUser, $selectedUser)
+function getRequests($selectedUser)
 {
     global $db;
     $parameter = array();
@@ -325,5 +392,19 @@ function getRequests($sessionUser, $selectedUser)
     }
     $stmt = $db->prepare($query);
     $stmt->execute($parameter);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getRequestsForCourse($selectedCourse)
+{
+    global $db;
+    $query =
+        'SELECT a.Id, a.Schüler
+        FROM Anfrage a, Kurs k
+        WHERE a.Kurs = k.Id
+        AND k.Id = :id';
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':id', $selectedCourse['Id']);
+    $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
