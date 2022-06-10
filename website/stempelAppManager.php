@@ -3,7 +3,6 @@ session_start();
 
 $db = new PDO('sqlite:' . dirname(__FILE__) . '/StempelApp.db');
 
-
 /**
  * constants
  */
@@ -32,7 +31,7 @@ function getCompetenceById($id)
     global $db;
     $query =
         'SELECT *
-        FROM Kompetenz 
+        FROM Kompetenz
         WHERE Id = :id';
     $stmt = $db->prepare($query);
     $stmt->bindParam(":id", $id);
@@ -45,7 +44,7 @@ function getCompetenceNameById($id)
     global $db;
     $query =
         'SELECT Name
-        FROM Kompetenz 
+        FROM Kompetenz
         WHERE Id = :id';
     $stmt = $db->prepare($query);
     $stmt->bindParam(":id", $id);
@@ -119,7 +118,7 @@ function getUserIdByName($name)
     return $user['Id'];
 }
 
-function getUsers($selectedUser)
+function getUsers($selectedUser, $startAt = null, $perPage = null)
 {
     global $db;
     $parameters = array();
@@ -146,6 +145,11 @@ function getUsers($selectedUser)
             'SELECT n.Id, n.Name, n.Rolle, n.Freigeschaltet
             FROM Nutzer n';
     }
+    // add page limitations
+    if (is_integer($startAt) && is_integer($perPage)) {
+        $parameters = array_merge($parameters, [$startAt, $perPage]);
+        $query .= ' LIMIT ?, ?';
+    }
     $stmt = $db->prepare($query);
     $stmt->execute($parameters);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -164,6 +168,12 @@ function getUsersForCourse($course)
     $stmt->bindParam(':id', $course['Id']);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getUsersCount($selectedUser): int
+{
+    $users = getUsers($selectedUser);
+    return count($users);
 }
 
 function addNewUser($name, $pw)
@@ -379,7 +389,7 @@ function getRequests($selectedUser)
     global $db;
     $parameter = array();
     $query =
-        'SELECT a.Id, s.Id as Schüler, k.Id as Kurs 
+        'SELECT a.Id, s.Id as Schüler, k.Id as Kurs
             FROM Anfrage a, Nutzer s, Kurs k
             WHERE a.Schüler = s.Id
             AND a.Kurs = k.Id';

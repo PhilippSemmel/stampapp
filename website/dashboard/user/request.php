@@ -13,10 +13,12 @@ $requests = getRequests($selectedUser);
 function printColumnNames()
 {
     global $requests, $sessionUser;
-    foreach ($requests[0] as $key => $request) {
-        if ($key == 'Id' && !isUserAdmin($sessionUser)) { continue; } ?>
-        <th><?= $key ?></th>
-    <?php }
+    if (sizeof($requests) != 0) {
+        foreach ($requests[0] as $key => $request) {
+            if ($key == 'Id' && !isUserAdmin($sessionUser)) { continue; } ?>
+            <th><?= $key ?></th>
+        <?php }
+    }
 }
 
 function printEntityRow($request)
@@ -50,7 +52,7 @@ function printEntityRow($request)
 <body>
 <?php include '../../header.inc.php'; ?>
 <?php include 'buttonlist.inc.php'; ?>
-<main>
+<div class="container flex">
     <div class="table">
         <table>
             <tr>
@@ -61,7 +63,7 @@ function printEntityRow($request)
             } ?>
         </table>
     </div>
-</main>
+</div>
 <?php include '../../footer.inc.php'; ?>
 </body>
 </html>

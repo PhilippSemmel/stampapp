@@ -8,7 +8,6 @@ if (!isset($_SESSION["name"])) {
 
 $sessionUser = getUserByName($_SESSION['name']);
 $selectedUser = getUserById($_GET['id']);
-
 ?>
 
 <!DOCTYPE html>
@@ -24,10 +23,10 @@ $selectedUser = getUserById($_GET['id']);
 <body>
 <?php include '../../header.inc.php'; ?>
 <?php include 'buttonlist.inc.php'; ?>
-<main>
+<div class="container flex">
     <div class="table">
         <?php if (isUserAdmin($sessionUser)) { ?>
-        <p><b>Id</b>: <?= $selectedUser['Id'] ?></p>
+            <p><b>Id</b>: <?= $selectedUser['Id'] ?></p>
         <?php } ?>
         <p><b>Name</b>: <?= $selectedUser['Name'] ?></p>
         <p><b>Rolle</b>: <?= ROLLEN_NAMEN[$selectedUser['Rolle']] ?></p>
@@ -35,7 +34,7 @@ $selectedUser = getUserById($_GET['id']);
             <p><b>Freigeschaltet</b>: <?= getUnlockedText($selectedUser) ?></p>
         <?php } ?>
     </div>
-</main>
+</div>
 <?php include '../../footer.inc.php'; ?>
 </body>
 </html>

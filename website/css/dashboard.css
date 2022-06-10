@@ -21,17 +21,21 @@ ul {
 
 ul li {
     padding: 0px 100px 0px 100px;
-    border-bottom: 1px solid #ddd;
 }
-
-ul li:last-child {
-    border-bottom: none;
+.buttonlist-ul{
+  justify-content: space-around;
 }
 
 .buttonlist {
-    margin-left: 10%;
-    margin-top: 10%;
     font-family: Montserrat;
     font-size: 17px;
-    position: absolute;
+    z-index: 10;
+}
+.container{
+  width: 100%;
+  height: 60%;
+  justify-content: space-around;
+  position: absolute;
+  flex-wrap: wrap;
+  align-items: flex-start;
 }

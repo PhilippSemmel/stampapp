@@ -13,10 +13,12 @@ $courses = getCourses($selectedUser, $sessionUser);
 function printColumnNames()
 {
     global $courses, $sessionUser;
-    foreach ($courses[0] as $key => $course) {
-        if ($key == 'Id' && !isUserAdmin($sessionUser)) { continue; } ?>
-        <th><?= $key ?></th>
-    <?php }
+    if (sizeof($courses) != 0) {
+        foreach ($courses[0] as $key => $course) {
+            if ($key == 'Id' && !isUserAdmin($sessionUser)) { continue; } ?>
+            <th><?= $key ?></th>
+        <?php }
+    }
 }
 
 function printEntityRow($course)
@@ -53,7 +55,7 @@ function printEntityRow($course)
 <body>
 <?php include '../../header.inc.php'; ?>
 <?php include 'buttonlist.inc.php'; ?>
-<main>
+<div class="container flex">
     <div class="table">
         <table>
             <tr>
@@ -64,7 +66,7 @@ function printEntityRow($course)
             } ?>
         </table>
     </div>
-</main>
+</div>
 <?php include '../../footer.inc.php'; ?>
 </body>
 </html>

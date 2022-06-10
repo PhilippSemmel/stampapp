@@ -3,9 +3,8 @@ $sessionUser = getUserByName($_SESSION['name']);
 $selectedUser = getUserById($_GET['id']);
 ?>
 
-
 <div class="buttonlist">
-    <ul>
+    <ul class="buttonlist-ul flex">
         <li><a href='entity.php?id=<?= $selectedUser['Id'] ?>' class="button">Übersicht</a></li>
         <!---------------- ADMIN BUTTONLIST ---------------->
         <?php if (isUserAdmin($sessionUser)) { ?>

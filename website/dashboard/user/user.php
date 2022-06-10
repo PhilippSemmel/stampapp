@@ -8,20 +8,37 @@ if (!isset($_SESSION["name"])) {
 
 $sessionUser = getUserByName($_SESSION['name']);
 $selectedUser = getUserById($_GET['id']);
-$users = getUsers($selectedUser);
+
+$perPage = 10;
+$userNumber = getUsersCount($selectedUser);
+$totalPages = ceil($userNumber / $perPage);
+$page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
+$startAt = (int)($perPage * ($page - 1));
+
+$users = getUsers($selectedUser, $startAt, $perPage);
+
+function printPageLinks()
+{
+    global $page, $totalPages;
+    for ($i = 1; $i <= $totalPages; $i++) {
+        echo ($i != $page) ? "<a href='user.php?id=" . $_GET['id'] . "&page=$i'>$i</a>" : " $page ";
+    }
+}
 
 function printColumnNames()
 {
     global $users, $sessionUser;
-    if (isUserAdmin($sessionUser)) {
-        foreach ($users[0] as $key => $user) { ?>
-            <th><?= $key ?></th>
+    if (sizeof($users) != 0) {
+        if (isUserAdmin($sessionUser)) {
+            foreach ($users[0] as $key => $user) { ?>
+                <th><?= $key ?></th>
+            <?php }
+        } elseif (isUserTeacher($sessionUser)) { ?>
+            <th>Schüler</th>
+        <?php } else { ?>
+            <th>Lehrer</th>
         <?php }
-    } elseif (isUserTeacher($sessionUser)) { ?>
-        <th>Schüler</th>
-    <?php } else { ?>
-        <th>Lehrer</th>
-    <?php }
+    }
 }
 
 function printEntityRow($user)
@@ -54,18 +71,17 @@ function printEntityRow($user)
 <body>
 <?php include '../../header.inc.php'; ?>
 <?php include 'buttonlist.inc.php'; ?>
-<main>
-    <div class="table">
-        <table>
-            <tr>
-                <?php printColumnNames() ?>
-            </tr>
-            <?php foreach ($users as $user) {
-                printEntityRow($user);
-            } ?>
-        </table>
-    </div>
-</main>
+<div class="container flex">
+    <table>
+        <tr>
+            <?php printColumnNames() ?>
+        </tr>
+        <?php foreach ($users as $user) {
+            printEntityRow($user);
+        } ?>
+        <td><?php printPageLinks() ?></td>
+    </table>
+</div>
 <?php include '../../footer.inc.php'; ?>
 </body>
 </html>

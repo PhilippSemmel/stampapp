@@ -23,17 +23,17 @@ $selectedCourse = getCourseById($_GET['id']);
 <body>
 <?php include '../../header.inc.php'; ?>
 <?php include 'buttonlist.inc.php'; ?>
-<main>
+<div class="container flex">
     <div class="table">
         <?php if (isUserAdmin($sessionUser)) { ?>
-        <p><b>Id</b>: <?= $selectedCourse['Id'] ?></p>
+            <p><b>Id</b>: <?= $selectedCourse['Id'] ?></p>
         <?php } ?>
         <p><b>Name</b>: <?= $selectedCourse['Name'] ?></p>
         <p><b>Stufe</b>: <?= $selectedCourse['Stufe'] ?></p>
         <p><b>Fach</b>: <?= $selectedCourse['Fach'] ?></p>
         <p><b>Lehrer</b>: <a href="../user/entity.php?id=<?= $selectedCourse['Lehrer'] ?>"><?= getUserNameById($selectedCourse['Lehrer']) ?></a></p>
     </div>
-</main>
+</div>
 <?php include '../../footer.inc.php'; ?>
 </body>
 </html>

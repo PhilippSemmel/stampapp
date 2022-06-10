@@ -23,9 +23,9 @@ $selectedStamp = getStampById($_GET['id']);
 <body>
 <?php include '../../header.inc.php'; ?>
 <?php include 'buttonlist.inc.php'; ?>
-<div id="content">
+<div class="container flex">
     <?php if (isUserAdmin($sessionUser)) { ?>
-    <p><b>Id</b>: <?= $selectedStamp['Id'] ?></p>
+        <p><b>Id</b>: <?= $selectedStamp['Id'] ?></p>
     <?php } ?>
     <p><b>Text</b>: <?= $selectedStamp['Text'] ?></p>
     <p><b>Empfänger</b>: <a href="../user/entity.php?id=<?= $selectedStamp['Empfänger'] ?>"><?= getUserNameById($selectedStamp['Empfänger']) ?></a</p>

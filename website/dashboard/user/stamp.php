@@ -13,10 +13,12 @@ $stamps = getStamps($selectedUser);
 function printColumnNames()
 {
     global $stamps, $sessionUser;
-    foreach ($stamps[0] as $key => $stamp) {
-        if ($key == 'Id' && !isUserAdmin($sessionUser)) { continue; } ?>
-        <th><?= $key ?></th>
-    <?php }
+    if (sizeof($stamps) != 0) {
+        foreach ($stamps[0] as $key => $stamp) {
+            if ($key == 'Id' && !isUserAdmin($sessionUser)) { continue; } ?>
+            <th><?= $key ?></th>
+        <?php }
+    }
 }
 
 function printEntityRow($stamp)
@@ -55,7 +57,7 @@ function printEntityRow($stamp)
 <body>
 <?php include '../../header.inc.php'; ?>
 <?php include 'buttonlist.inc.php'; ?>
-<main>
+<div class="container flex">
     <div class="table">
         <table>
             <tr>
@@ -66,7 +68,7 @@ function printEntityRow($stamp)
             } ?>
         </table>
     </div>
-</main>
+</div>
 <?php include '../../footer.inc.php'; ?>
 </body>
 </html>
