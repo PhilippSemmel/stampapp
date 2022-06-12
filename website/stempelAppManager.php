@@ -124,7 +124,7 @@ function getUsers($selectedUser, $startAt = null, $perPage = null)
     $parameters = array();
     if (isUserStudent($selectedUser)) {
         $query =
-            'SELECT lehrer.Id, lehrer.Name
+            'SELECT lehrer.Id, lehrer.Name, lehrer.Rolle
             FROM Nutzer schüler, Schüler_Kurs sk, Kurs k, Nutzer lehrer
             WHERE schüler.Id = ?
             AND sk.Schüler = schüler.Id
@@ -134,7 +134,7 @@ function getUsers($selectedUser, $startAt = null, $perPage = null)
         $parameters[] = $selectedUser['Id'];
     } elseif (isUserTeacher($selectedUser)) {
         $query =
-            'SELECT n.Id, n.Name
+            'SELECT n.Id, n.Name, n.Rolle
             FROM Nutzer n, Schüler_Kurs sk, Kurs k
             WHERE sk.Schüler = n.Id
             AND sk.Kurs = k.Id
@@ -204,6 +204,11 @@ function isUserStudent($user): bool
     return $user['Rolle'] == SCHUELER;
 }
 
+function isSameUser($user1, $user2): bool
+{
+    return $user1['Id'] == $user2['Id'];
+}
+
 /**
  * course functions
  */
@@ -268,7 +273,7 @@ function getCourses($selectedUser, $sessionUser)
         }
     } elseif (isUserTeacher($sessionUser)) {
         $parameters[] = $sessionUser['Id'];
-        if ($selectedUser['Id'] == $sessionUser['Id']) {
+        if (isSameUser($sessionUser, $selectedUser)) {
             $query =
                 'SELECT k.Id, k.Name, k.Stufe, k.Fach, count(sk.Id) as "Anzahl Schüler"
                 FROM Kurs k, Schüler_Kurs sk, Nutzer l
@@ -288,6 +293,18 @@ function getCourses($selectedUser, $sessionUser)
                 GROUP BY k.Id';
             $parameters[] = $selectedUser['Id'];
         }
+    } elseif (isUserStudent($sessionUser)) {
+        $parameters[] = $sessionUser['Id'];
+        if (isSameUser($sessionUser, $selectedUser) or isUserTeacher($selectedUser)) {
+            $query =
+                'SELECT k.Id, k.Name, k.Stufe, k.Fach, l.Id as "Lehrer"
+                FROM Kurs k, Schüler_Kurs sk, Nutzer s, Nutzer l
+                WHERE s.Id = ?
+                AND sk.Kurs = k.Id
+                AND sk.Schüler = s.Id
+                AND k.Lehrer = l.Id';
+        }
+
     }
     $stmt = $db->prepare($query);
     $stmt->execute($parameters);
@@ -314,7 +331,7 @@ function getStampById($id)
     return $stmt->fetch();
 }
 
-function getStamps($selectedUser)
+function getStamps($selectedUser, $sessionUser)
 {
     global $db;
     $parameter = array();
@@ -328,6 +345,10 @@ function getStamps($selectedUser)
             AND s.Kurs = k.Id
             AND s.Kompetenz = kom.Id';
         $parameter[] = $selectedUser['Id'];
+        if (isUserTeacher($sessionUser)) {
+            $query .= ' AND k.Lehrer = ?';
+            $parameter[] = $sessionUser['Id'];
+        }
     } elseif (isUserTeacher($selectedUser)) {
         $query =
             'SELECT s.Id, s.Text, s.Bild, empfänger.Id as Empfänger, k.Id as Kurs, kom.Id as Kompetenz, Datum
@@ -338,6 +359,10 @@ function getStamps($selectedUser)
             AND k.Lehrer = ?
             AND s.Kompetenz = kom.Id';
         $parameter[] = $selectedUser['Id'];
+        if (isUserStudent($sessionUser)) {
+            $query .= ' AND empfänger.Id = ?';
+            $parameter[] = $sessionUser['Id'];
+        }
     } else {
         $query =
             'SELECT s.Id, s.Text, s.Bild, empfänger.Id as Empfänger, aussteller.Id as Aussteller, k.Id as Kurs, kom.Id as Kompetenz, Datum

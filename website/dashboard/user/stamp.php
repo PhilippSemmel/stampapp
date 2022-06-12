@@ -8,7 +8,7 @@ if (!isset($_SESSION["name"])) {
 
 $sessionUser = getUserByName($_SESSION['name']);
 $selectedUser = getUserById($_GET['id']);
-$stamps = getStamps($selectedUser);
+$stamps = getStamps($selectedUser, $sessionUser);
 
 function printColumnNames()
 {

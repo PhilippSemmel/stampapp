@@ -28,7 +28,11 @@ function printEntityRow($request)
         <?php if (isUserAdmin($sessionUser)) { ?>
             <td><?= $request['Id'] ?></td>
         <?php } ?>
-        <td><a href="../user/entity.php?id=<?= $request['Schüler'] ?>"><?= getUserNameById($request['Schüler']) ?></a></td>
+        <?php if (!isUserTeacher($sessionUser)) { ?>
+            <td><a href="../user/entity.php?id=<?= $request['Schüler'] ?>"><?= getUserNameById($request['Schüler']) ?></a></td>
+        <?php } else { ?>
+            <td><?= getUserNameById($request['Schüler']) ?></td>
+        <?php } ?>
     </tr>
 <?php }
 

@@ -24,15 +24,17 @@ $selectedStamp = getStampById($_GET['id']);
 <?php include '../../header.inc.php'; ?>
 <?php include 'buttonlist.inc.php'; ?>
 <div class="container flex">
-    <?php if (isUserAdmin($sessionUser)) { ?>
-        <p><b>Id</b>: <?= $selectedStamp['Id'] ?></p>
-    <?php } ?>
-    <p><b>Text</b>: <?= $selectedStamp['Text'] ?></p>
-    <p><b>Empfänger</b>: <a href="../user/entity.php?id=<?= $selectedStamp['Empfänger'] ?>"><?= getUserNameById($selectedStamp['Empfänger']) ?></a</p>
-    <p><b>Aussteller</b>: <a href="../user/entity.php?id=<?= $selectedStamp['Aussteller'] ?>"><?= getUserNameById($selectedStamp['Aussteller']) ?></a</p>
-    <p><b>Kurs</b>: <a href="../course/entity.php?id=<?= $selectedStamp['Kurs'] ?>"><?= getCourseNameById($selectedStamp['Kurs']) ?></a></p>
-    <p><b>Kompetenz</b>: <a href="../../competence.php?id=<?= $selectedStamp['Kompetenz'] ?>"><?= getCompetenceNameById($selectedStamp['Kompetenz']) ?></a></p>
-    <p><b>Datum</b>: <?= $selectedStamp['Datum'] ?></p>
+    <div class="table">
+        <?php if (isUserAdmin($sessionUser)) { ?>
+            <p><b>Id</b>: <?= $selectedStamp['Id'] ?></p>
+        <?php } ?>
+        <p><b>Text</b>: <?= $selectedStamp['Text'] ?></p>
+        <p><b>Empfänger</b>: <a href="../user/entity.php?id=<?= $selectedStamp['Empfänger'] ?>"><?= getUserNameById($selectedStamp['Empfänger']) ?></a</p>
+        <p><b>Aussteller</b>: <a href="../user/entity.php?id=<?= $selectedStamp['Aussteller'] ?>"><?= getUserNameById($selectedStamp['Aussteller']) ?></a></p>
+        <p><b>Kurs</b>: <a href="../course/entity.php?id=<?= $selectedStamp['Kurs'] ?>"><?= getCourseNameById($selectedStamp['Kurs']) ?></a></p>
+        <p><b>Kompetenz</b>: <a href="../../competence.php?id=<?= $selectedStamp['Kompetenz'] ?>"><?= getCompetenceNameById($selectedStamp['Kompetenz']) ?></a></p>
+        <p><b>Datum</b>: <?= $selectedStamp['Datum'] ?></p>
+    </div>
 </div>
 <?php include '../../footer.inc.php'; ?>
 </body>

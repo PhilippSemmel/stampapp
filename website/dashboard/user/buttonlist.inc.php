@@ -20,7 +20,7 @@ $selectedUser = getUserById($_GET['id']);
             <li><a href='request.php?id=<?= $selectedUser['Id'] ?>' class="button">Anfragen</a></li>
             <!---------------- TEACHER BUTTONLIST ---------------->
         <?php } elseif (isUserTeacher($sessionUser)) { ?>
-            <?php if ($sessionUser['Id'] == $selectedUser['Id']) { ?>
+            <?php if (isSameUser($sessionUser, $selectedUser)) { ?>
                 <li><a href='user.php?id=<?= $selectedUser['Id'] ?>' class="button">Schüler</a></li>
                 <li><a href='course.php?id=<?= $selectedUser['Id'] ?>' class="button">Kurse</a></li>
                 <li><a href='stamp.php?id=<?= $selectedUser['Id'] ?>' class="button">Stempel</a></li>
@@ -32,7 +32,7 @@ $selectedUser = getUserById($_GET['id']);
             <?php } ?>
             <!---------------- STUDENT BUTTONLIST ---------------->
         <?php } elseif (isUserStudent($sessionUser)) { ?>
-            <?php if ($sessionUser['Id'] == $selectedUser['Id']) { ?>
+            <?php if (isSameUser($sessionUser, $selectedUser)) { ?>
                 <li><a href='user.php?id=<?= $selectedUser['Id'] ?>' class="button">Lehrer</a></li>
                 <li><a href='course.php?id=<?= $selectedUser['Id'] ?>' class="button">Kurse</a></li>
                 <li><a href='stamp.php?id=<?= $selectedUser['Id'] ?>' class="button">Stempel</a></li>
