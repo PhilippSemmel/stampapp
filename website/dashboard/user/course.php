@@ -34,7 +34,7 @@ function printEntityRow($course)
         <?php if (!isUserTeacher($sessionUser)) { ?>
             <td><a href='entity.php?id=<?= $course['Lehrer'] ?>'><?= getUserNameById($course['Lehrer']) ?></a></td>
         <?php } ?>
-        <?php if (!isUserStudent($sessionUser)) { ?>
+        <?php if (!isUserStudent($selectedUser)) { ?>
             <td><?= $course['Anzahl Schüler'] ?></td>
         <?php } ?>
     </tr>

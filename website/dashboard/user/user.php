@@ -21,7 +21,7 @@ function printPageLinks()
 {
     global $page, $totalPages;
     for ($i = 1; $i <= $totalPages; $i++) {
-        echo ($i != $page) ? "<a href='user.php?id=" . $_GET['id'] . "&page=$i'>$i</a>" : " $page ";
+        echo ($i != $page) ? "<a href='user.php?id=" . $_GET['id'] . "&page=$i'>$i</a>" : "<u>$page</u>";
     }
 }
 
@@ -43,13 +43,15 @@ function printColumnNames()
 
 function printEntityRow($user)
 {
-    global $sessionUser ?>
+    global $sessionUser, $selectedUser ?>
     <tr>
         <?php if (isUserAdmin($sessionUser)) { ?>
             <td><?= $user['Id'] ?></td>
             <td><a href="entity.php?id=<?= $user['Id'] ?>"><?= $user['Name'] ?></a></td>
             <td><?= ROLLEN_NAMEN[$user['Rolle']] ?></td>
-            <td><?= getUnlockedText($user) ?></td>
+            <?php if (isUserAdmin($selectedUser)) { ?>
+                <td><?= getUnlockedText($user) ?></td>
+            <?php } ?>
         <?php } else { ?>
             <td><a href="entity.php?id=<?= $user['Id'] ?>"><?= $user['Name'] ?></a></td>
         <?php } ?>

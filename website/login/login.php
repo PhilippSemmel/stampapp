@@ -38,16 +38,14 @@ function headToDashboard($userid)
 if (isset($_POST["submit_register"])) {
     if (usernameExists()) {
         echoMessage('Username bereits vergeben');
-        return;
-    }
-    if (!passwordsMatch()) {
+    } elseif (!passwordsMatch()) {
         echoMessage('Passwörter stimmen nicht überein');
-        return;
+    } else {
+        addNewUser($_POST['username_register'], $_POST['pw_register']);
+        $user = getUserByName($_POST['username_register']);
+        setNameOfUserInSession($user['Name']);
+        headToDashboard($user['Id']);
     }
-    addNewUser($_POST['username_register'], $_POST['pw_register']);
-    $user = getUserByName($_POST['username_register']);
-    setNameOfUserInSession($user['Name']);
-    headToDashboard($user['Id']);
 }
 
 // login

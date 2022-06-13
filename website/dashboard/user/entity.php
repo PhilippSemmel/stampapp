@@ -33,6 +33,9 @@ $selectedUser = getUserById($_GET['id']);
         <?php if (isUserTeacher($selectedUser)) { ?>
             <p><b>Freigeschaltet</b>: <?= getUnlockedText($selectedUser) ?></p>
         <?php } ?>
+        <?php if (isUserStudent($selectedUser)) { ?>
+            <p><b>Anzahl Stempel</b>: <?= $selectedUser['AnzahlStempel'] ?></p>
+        <?php } ?>
     </div>
 </div>
 <?php include '../../footer.inc.php'; ?>

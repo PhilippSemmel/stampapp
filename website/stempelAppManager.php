@@ -16,7 +16,7 @@ function getUnlockedText($user): string
     if (!isUserTeacher($user)) {
         return '';
     }
-    if ($user['Freigeschaltet'] == 'true') {
+    if ($user['Freigeschaltet'] == 1) {
         return 'Ja';
     } else {
         return 'Nein';
@@ -74,7 +74,21 @@ function getUserById($id)
     $stmt = $db->prepare($query);
     $stmt->bindParam(":id", $id);
     $stmt->execute();
-    return $stmt->fetch(PDO::FETCH_ASSOC);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    // add number of stamps if user is student
+    if ($user['Rolle'] == SCHUELER) {
+        $query =
+            'SELECT count(s.Id) as "AnzahlStempel"
+            FROM Nutzer n, Stempel s
+            WHERE n.Id = :id
+            AND s.Empfänger = n.Id
+            GROUP BY n.Id';
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(":id", $id);
+        $stmt->execute();
+        $user['AnzahlStempel'] = $stmt->fetch(PDO::FETCH_ASSOC)['AnzahlStempel'];
+    }
+    return $user;
 }
 
 function getUserNameById($id)
@@ -179,14 +193,13 @@ function getUsersCount($selectedUser): int
 function addNewUser($name, $pw)
 {
     global $db;
-    $query =
-        'INSERT INTO Nutzer (id, Name, Passwort, Rolle, Freigeschaltet)
-        VALUES (null, :name, :pw, 0, false)';
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(":name", $name);
     $hash = password_hash($pw, PASSWORD_BCRYPT);
-    $stmt->bindParam(":pw", $hash);
-    $stmt->execute();
+    $parameter = array($name, $hash);
+    $query =
+        'INSERT INTO Nutzer (Id, Name, Passwort, Rolle, Freigeschaltet)
+        VALUES (null, ?, ?, 0, 0)';
+    $stmt = $db->prepare($query);
+    $stmt->execute($parameter);
 }
 
 function isUserAdmin($user): bool
@@ -247,7 +260,7 @@ function getCourses($selectedUser, $sessionUser)
     if (isUserAdmin($sessionUser)) {
         if (isUserStudent($selectedUser)) {
             $query =
-                'SELECT k.Id, k.Name, k.Stufe, k.Fach, l.Id as Lehrer
+                'SELECT k.Id, k.Name, k.Stufe, k.Fach, l.Id as Lehrer, count(sk.Id) as "Anzahl Schüler"
                 FROM Kurs k, Schüler_Kurs sk, Nutzer l
                 WHERE sk.Kurs = k.Id
                 AND k.Lehrer = l.Id
@@ -256,7 +269,7 @@ function getCourses($selectedUser, $sessionUser)
             $parameters[] = $selectedUser['Id'];
         } elseif (isUserTeacher($selectedUser)) {
             $query =
-                'SELECT k.Id, k.Name, k.Stufe, k.Fach, count(sk.Id) as "Anzahl Schüler"
+                'SELECT k.Id, k.Name, k.Stufe, k.Fach, l.Id as Lehrer, count(sk.Id) as "Anzahl Schüler"
                 FROM Kurs k, Schüler_Kurs sk, Nutzer l
                 WHERE l.Id = ?
                 AND k.Lehrer = l.Id
@@ -304,7 +317,6 @@ function getCourses($selectedUser, $sessionUser)
                 AND sk.Schüler = s.Id
                 AND k.Lehrer = l.Id';
         }
-
     }
     $stmt = $db->prepare($query);
     $stmt->execute($parameters);
