@@ -9,21 +9,12 @@ if (!isset($_SESSION["name"])) {
 $sessionUser = getUserByName($_SESSION['name']);
 $selectedUser = getUserById($_GET['id']);
 
-$perPage = 10;
 $userNumber = getUsersCount($selectedUser);
-$totalPages = ceil($userNumber / $perPage);
+$totalPages = ceil($userNumber / ENTITIES_PER_PAGE);
 $page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
-$startAt = (int)($perPage * ($page - 1));
+$startAt = (int)(ENTITIES_PER_PAGE * ($page - 1));
 
-$users = getUsers($selectedUser, $startAt, $perPage);
-
-function printPageLinks()
-{
-    global $page, $totalPages;
-    for ($i = 1; $i <= $totalPages; $i++) {
-        echo ($i != $page) ? "<a href='user.php?id=" . $_GET['id'] . "&page=$i'>$i</a>" : "<u>$page</u>";
-    }
-}
+$users = getUsers($selectedUser, $startAt);
 
 function printColumnNames()
 {
@@ -57,6 +48,14 @@ function printEntityRow($user)
         <?php } ?>
     </tr>
 <?php }
+
+function printPageLinks()
+{
+    global $page, $totalPages;
+    for ($i = 1; $i <= $totalPages; $i++) {
+        echo ($i != $page) ? "<a href='user.php?id=" . $_GET['id'] . "&page=$i'>$i</a>" : "<u>$page</u>";
+    }
+}
 
 ?>
 

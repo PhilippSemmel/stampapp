@@ -24,15 +24,36 @@ $selectedCourse = getCourseById($_GET['id']);
 <?php include '../../header.inc.php'; ?>
 <?php include 'buttonlist.inc.php'; ?>
 <div class="container flex">
-    <div class="table">
+    <table class="table">
         <?php if (isUserAdmin($sessionUser)) { ?>
-            <p><b>Id</b>: <?= $selectedCourse['Id'] ?></p>
+            <tr>
+                <td><b>Id</b></td>
+                <td><?= $selectedCourse['Id'] ?></td>
+            </tr>
         <?php } ?>
-        <p><b>Name</b>: <?= $selectedCourse['Name'] ?></p>
-        <p><b>Stufe</b>: <?= $selectedCourse['Stufe'] ?></p>
-        <p><b>Fach</b>: <?= $selectedCourse['Fach'] ?></p>
-        <p><b>Lehrer</b>: <a href="../user/entity.php?id=<?= $selectedCourse['Lehrer'] ?>"><?= getUserNameById($selectedCourse['Lehrer']) ?></a></p>
-    </div>
+        <tr>
+            <td><b>Name</b></td>
+            <td><?= $selectedCourse['Name'] ?></td>
+        </tr>
+        <tr>
+            <td><b>Stufe</b></td>
+            <td><?= $selectedCourse['Stufe'] ?></td>
+        </tr>
+        <tr>
+            <td><b>Fach</b></td>
+            <td><?= $selectedCourse['Fach'] ?></td>
+        </tr>
+        <tr>
+            <td><b>Lehrer</b></td>
+            <td><a href="../user/entity.php?id=<?= $selectedCourse['Lehrer'] ?>"><?= getUserNameById($selectedCourse['Lehrer']) ?></a></td>
+        </tr>
+        <?php if (!isUserStudent($sessionUser)) { ?>
+            <tr>
+                <td><b>Anzahl Schüler</b></td>
+                <td><?= getUsersCountForCourse($selectedCourse['Id']) ?></td>
+            </tr>
+        <?php } ?>
+    </table>
 </div>
 <?php include '../../footer.inc.php'; ?>
 </body>

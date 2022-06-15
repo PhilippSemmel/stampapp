@@ -93,8 +93,7 @@ if (isset($_POST["submit_login"])) {
                 <input type="password" name="pw_register" placeholder="Passwort" required class="typein"><br>
             </label>
             <label>
-                <input type="password" name="pw_register2" placeholder="Passwort wiederholen" required
-                       class="typein"><br>
+                <input type="password" name="pw_register2" placeholder="Passwort wiederholen" required class="typein"><br>
             </label>
             <button type="submit" name="submit_register" class="login-btn">Erstellen</button>
         </form>

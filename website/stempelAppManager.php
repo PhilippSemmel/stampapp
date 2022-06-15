@@ -6,6 +6,7 @@ $db = new PDO('sqlite:' . dirname(__FILE__) . '/StempelApp.db');
 /**
  * constants
  */
+const ENTITIES_PER_PAGE = 10;
 const SCHUELER = 0;
 const LEHRER = 1;
 const ADMIN = 2;
@@ -74,21 +75,7 @@ function getUserById($id)
     $stmt = $db->prepare($query);
     $stmt->bindParam(":id", $id);
     $stmt->execute();
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-    // add number of stamps if user is student
-    if ($user['Rolle'] == SCHUELER) {
-        $query =
-            'SELECT count(s.Id) as "AnzahlStempel"
-            FROM Nutzer n, Stempel s
-            WHERE n.Id = :id
-            AND s.Empfänger = n.Id
-            GROUP BY n.Id';
-        $stmt = $db->prepare($query);
-        $stmt->bindParam(":id", $id);
-        $stmt->execute();
-        $user['AnzahlStempel'] = $stmt->fetch(PDO::FETCH_ASSOC)['AnzahlStempel'];
-    }
-    return $user;
+    return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
 function getUserNameById($id)
@@ -132,7 +119,7 @@ function getUserIdByName($name)
     return $user['Id'];
 }
 
-function getUsers($selectedUser, $startAt = null, $perPage = null)
+function getUsers($selectedUser, $startAtEntry = null)
 {
     global $db;
     $parameters = array();
@@ -160,8 +147,8 @@ function getUsers($selectedUser, $startAt = null, $perPage = null)
             FROM Nutzer n';
     }
     // add page limitations
-    if (is_integer($startAt) && is_integer($perPage)) {
-        $parameters = array_merge($parameters, [$startAt, $perPage]);
+    if (is_integer($startAtEntry)) {
+        $parameters = array_merge($parameters, [$startAtEntry, ENTITIES_PER_PAGE]);
         $query .= ' LIMIT ?, ?';
     }
     $stmt = $db->prepare($query);
@@ -188,6 +175,61 @@ function getUsersCount($selectedUser): int
 {
     $users = getUsers($selectedUser);
     return count($users);
+}
+
+function getTeacherCount(): int
+{
+    global $db;
+    $query =
+        'SELECT count(n.Id) as count
+        FROM Nutzer n
+        WHERE n.Rolle = 1';
+    $stmt = $db->prepare($query);
+    $stmt->execute();
+    $count = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $count['count'];
+}
+
+function getStudentCount(): int
+{
+    global $db;
+    $query =
+        'SELECT count(n.Id) as count
+        FROM Nutzer n
+        WHERE n.Rolle = 0';
+    $stmt = $db->prepare($query);
+    $stmt->execute();
+    $count = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $count['count'];
+}
+
+function getUsersCountForCourse($courseId): int
+{
+    global $db;
+    $query =
+        'SELECT count(n.Id) as count
+        FROM Nutzer n, Schüler_Kurs sk, Kurs k
+        WHERE sk.Schüler = n.Id
+        AND sk.Kurs = k.Id
+        AND k.Id = ?';
+    $stmt = $db->prepare($query);
+    $stmt->execute(array($courseId));
+    $count = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $count['count'];
+}
+
+function getAverageUsersPerCourse(): int
+{
+    global $db;
+    $query =
+        'SELECT count(n.Name) / count(distinct(k.Id)) AS count
+        FROM Nutzer n, Schüler_Kurs sk, Kurs k
+        WHERE sk.Schüler = n.Id
+        AND sk.Kurs = k.Id';
+    $stmt = $db->prepare($query);
+    $stmt->execute();
+    $count = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $count['count'];
 }
 
 function addNewUser($name, $pw)
@@ -252,10 +294,10 @@ function getCourseNameById($id)
     return $course['Name'];
 }
 
-
-function getCourses($selectedUser, $sessionUser)
+function getCourses($selectedUser)
 {
     global $db;
+    $sessionUser = getUserByName($_SESSION['name']);
     $parameters = array();
     if (isUserAdmin($sessionUser)) {
         if (isUserStudent($selectedUser)) {
@@ -323,6 +365,12 @@ function getCourses($selectedUser, $sessionUser)
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+function getCoursesCount($selectedUser): int
+{
+    $courses = getCourses($selectedUser);
+    return count($courses);
+}
+
 /**
  * stamp functions
  */
@@ -343,10 +391,11 @@ function getStampById($id)
     return $stmt->fetch();
 }
 
-function getStamps($selectedUser, $sessionUser)
+function getStamps($selectedUser, $startAtEntry = null)
 {
     global $db;
-    $parameter = array();
+    $sessionUser = getUserByName($_SESSION['name']);
+    $parameters = array();
     if (isUserStudent($selectedUser)) {
         $query =
             'SELECT s.Id, s.Text, s.Bild, aussteller.Id as Aussteller, k.Id as Kurs, kom.Id as Kompetenz, Datum
@@ -356,10 +405,10 @@ function getStamps($selectedUser, $sessionUser)
             AND s.Aussteller = aussteller.Id
             AND s.Kurs = k.Id
             AND s.Kompetenz = kom.Id';
-        $parameter[] = $selectedUser['Id'];
+        $parameters[] = $selectedUser['Id'];
         if (isUserTeacher($sessionUser)) {
             $query .= ' AND k.Lehrer = ?';
-            $parameter[] = $sessionUser['Id'];
+            $parameters[] = $sessionUser['Id'];
         }
     } elseif (isUserTeacher($selectedUser)) {
         $query =
@@ -370,10 +419,10 @@ function getStamps($selectedUser, $sessionUser)
             AND s.Kurs = k.Id
             AND k.Lehrer = ?
             AND s.Kompetenz = kom.Id';
-        $parameter[] = $selectedUser['Id'];
+        $parameters[] = $selectedUser['Id'];
         if (isUserStudent($sessionUser)) {
             $query .= ' AND empfänger.Id = ?';
-            $parameter[] = $sessionUser['Id'];
+            $parameters[] = $sessionUser['Id'];
         }
     } else {
         $query =
@@ -384,16 +433,21 @@ function getStamps($selectedUser, $sessionUser)
             AND s.Kurs = k.Id
             AND s.Kompetenz = kom.Id';
     }
+    // add page limitations
+    if (is_integer($startAtEntry)) {
+        $parameters = array_merge($parameters, [$startAtEntry, ENTITIES_PER_PAGE]);
+        $query .= ' LIMIT ?, ?';
+    }
     $stmt = $db->prepare($query);
-    $stmt->execute($parameter);
+    $stmt->execute($parameters);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getStampsForCourse($course, $sessionUser)
+function getStampsForCourse($course)
 {
     global $db;
-    $parameters = array();
-    $parameters[] = $course['Id'];
+    $sessionUser = getUserByName($_SESSION['name']);
+    $parameters = array($course['Id']);
     if (isUserStudent($sessionUser)) {
         $query =
             'SELECT s.Id, s.Text, s.Bild, aussteller.Id as Aussteller, kom.Id as Kompetenz, Datum
@@ -416,6 +470,42 @@ function getStampsForCourse($course, $sessionUser)
     $stmt = $db->prepare($query);
     $stmt->execute($parameters);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getStampsCount($selectedUser): int
+{
+    $stamps = getStamps($selectedUser);
+    return count($stamps);
+}
+
+function getStampsCountForCourse($sessionUser, $course): int
+{
+    global $db;
+    $parameters = array($course['Id']);
+    $query =
+        'SELECT count(s.Id) AS count
+        FROM Stempel s
+        WHERE s.Kurs = ?';
+    if ($sessionUser['Rolle'] = SCHUELER) {
+        $query .= ' AND s.Empfänger = ?';
+        $parameters[] = array($sessionUser['Id']);
+    }
+    $stmt = $db->prepare($query);
+    $stmt->execute($parameters);
+    $count = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $count['count'];
+}
+
+function getAverageStampsPerCourse(): int
+{
+    global $db;
+    $query =
+        'SELECT count(s.Id) / count(distinct(s.Kurs)) as count
+        FROM Stempel s';
+    $stmt = $db->prepare($query);
+    $stmt->execute();
+    $count = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $count['count'];
 }
 
 /**

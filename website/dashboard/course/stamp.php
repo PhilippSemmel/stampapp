@@ -8,7 +8,7 @@ if (!isset($_SESSION["name"])) {
 
 $sessionUser = getUserByName($_SESSION['name']);
 $selectedCourse = getCourseById($_GET['id']);
-$stamps = getStampsForCourse($selectedCourse, $sessionUser);
+$stamps = getStampsForCourse($selectedCourse);
 
 function printColumnNames()
 {
@@ -31,7 +31,7 @@ function printEntityRow($stamp)
         <td><a href="../stamp/entity.php?id=<?= $stamp['Id'] ?>"><?= $stamp['Text'] ?></a></td>
         <td><?= $stamp['Bild'] ?></td>
         <?php if (!isUserStudent($sessionUser)) { ?>
-        <td><a href="../user/entity.php?id=<?= $stamp['Empfänger'] ?>"><?= getUserNameById($stamp['Empfänger']) ?></a></td>
+            <td><a href="../user/entity.php?id=<?= $stamp['Empfänger'] ?>"><?= getUserNameById($stamp['Empfänger']) ?></a></td>
         <?php } ?>
         <td><a href="../user/entity.php?id=<?= $stamp['Aussteller'] ?>"><?= getUserNameById($stamp['Aussteller']) ?></a></td>
         <td><a href="../../competence.php?id=<?= $stamp['Kompetenz'] ?>"><?= getCompetenceNameById($stamp['Kompetenz']) ?></a></td>

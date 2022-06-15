@@ -8,7 +8,13 @@ if (!isset($_SESSION["name"])) {
 
 $sessionUser = getUserByName($_SESSION['name']);
 $selectedUser = getUserById($_GET['id']);
-$stamps = getStamps($selectedUser, $sessionUser);
+
+$stampNumber = getStampsCount($selectedUser);
+$totalPages = ceil($stampNumber / ENTITIES_PER_PAGE);
+$page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
+$startAt = (int)(ENTITIES_PER_PAGE * ($page - 1));
+
+$stamps = getStamps($selectedUser, $startAt);
 
 function printColumnNames()
 {
@@ -42,6 +48,14 @@ function printEntityRow($stamp)
     </tr>
 <?php }
 
+function printPageLinks()
+{
+    global $page, $totalPages;
+    for ($i = 1; $i <= $totalPages; $i++) {
+        echo ($i != $page) ? "<a href='stamp.php?id=" . $_GET['id'] . "&page=$i'>$i</a>" : "<u>$page</u>";
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -66,6 +80,7 @@ function printEntityRow($stamp)
             <?php foreach ($stamps as $stamp) {
                 printEntityRow($stamp);
             } ?>
+            <td><?php printPageLinks() ?></td>
         </table>
     </div>
 </div>

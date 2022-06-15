@@ -40,6 +40,14 @@ function printEntityRow($course)
     </tr>
 <?php }
 
+function printPageLinks()
+{
+    global $page, $totalPages;
+    for ($i = 1; $i <= $totalPages; $i++) {
+        echo ($i != $page) ? "<a href='course.php?id=" . $_GET['id'] . "&page=$i'>$i</a>" : "<u>$page</u>";
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -64,6 +72,7 @@ function printEntityRow($course)
             <?php foreach ($courses as $course) {
                 printEntityRow($course);
             } ?>
+            <td><?php printPageLinks() ?></td>
         </table>
     </div>
 </div>

@@ -24,17 +24,38 @@ $selectedStamp = getStampById($_GET['id']);
 <?php include '../../header.inc.php'; ?>
 <?php include 'buttonlist.inc.php'; ?>
 <div class="container flex">
-    <div class="table">
+    <table class="table">
         <?php if (isUserAdmin($sessionUser)) { ?>
-            <p><b>Id</b>: <?= $selectedStamp['Id'] ?></p>
+            <tr>
+                <td><b>Id</b></td>
+                <td><?= $selectedStamp['Id'] ?></td>
+            </tr>
         <?php } ?>
-        <p><b>Text</b>: <?= $selectedStamp['Text'] ?></p>
-        <p><b>Empfänger</b>: <a href="../user/entity.php?id=<?= $selectedStamp['Empfänger'] ?>"><?= getUserNameById($selectedStamp['Empfänger']) ?></a</p>
-        <p><b>Aussteller</b>: <a href="../user/entity.php?id=<?= $selectedStamp['Aussteller'] ?>"><?= getUserNameById($selectedStamp['Aussteller']) ?></a></p>
-        <p><b>Kurs</b>: <a href="../course/entity.php?id=<?= $selectedStamp['Kurs'] ?>"><?= getCourseNameById($selectedStamp['Kurs']) ?></a></p>
-        <p><b>Kompetenz</b>: <a href="../../competence.php?id=<?= $selectedStamp['Kompetenz'] ?>"><?= getCompetenceNameById($selectedStamp['Kompetenz']) ?></a></p>
-        <p><b>Datum</b>: <?= $selectedStamp['Datum'] ?></p>
-    </div>
+        <tr>
+            <td><b>Text</b></td>
+            <td><?= $selectedStamp['Text'] ?></td>
+        </tr>
+        <tr>
+            <td><b>Empfänger</b></td>
+            <td><a href="../user/entity.php?id=<?= $selectedStamp['Empfänger'] ?>"><?= getUserNameById($selectedStamp['Empfänger']) ?></a></td>
+        </tr>
+        <tr>
+            <td><b>Aussteller</b></td>
+            <td><a href="../user/entity.php?id=<?= $selectedStamp['Aussteller'] ?>"><?= getUserNameById($selectedStamp['Aussteller']) ?></a></td>
+        </tr>
+        <tr>
+            <td><b>Kurs</b></td>
+            <td><a href="../course/entity.php?id=<?= $selectedStamp['Kurs'] ?>"><?= getCourseNameById($selectedStamp['Kurs']) ?></a></td>
+        </tr>
+        <tr>
+            <td><b>Kompetenz</b></td>
+            <td><a href="../../competence.php?id=<?= $selectedStamp['Kompetenz'] ?>"><?= getCompetenceNameById($selectedStamp['Kompetenz']) ?></a></td>
+        </tr>
+        <tr>
+            <td><b>Datum</b></td>
+            <td><?= $selectedStamp['Datum'] ?></td>
+        </tr>
+    </table>
 </div>
 <?php include '../../footer.inc.php'; ?>
 </body>

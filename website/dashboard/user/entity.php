@@ -24,19 +24,83 @@ $selectedUser = getUserById($_GET['id']);
 <?php include '../../header.inc.php'; ?>
 <?php include 'buttonlist.inc.php'; ?>
 <div class="container flex">
-    <div class="table">
+    <table class="table">
         <?php if (isUserAdmin($sessionUser)) { ?>
-            <p><b>Id</b>: <?= $selectedUser['Id'] ?></p>
+            <tr>
+                <td><b>Id</b></td>
+                <td><?= $selectedUser['Id'] ?></td>
+            </tr>
         <?php } ?>
-        <p><b>Name</b>: <?= $selectedUser['Name'] ?></p>
-        <p><b>Rolle</b>: <?= ROLLEN_NAMEN[$selectedUser['Rolle']] ?></p>
+        <tr>
+            <td><b>Name</b></td>
+            <td><?= $selectedUser['Name'] ?></td>
+        </tr>
+        <tr>
+            <td><b>Rolle</b></td>
+            <td><?= ROLLEN_NAMEN[$selectedUser['Rolle']] ?></td>
+        </tr>
+        <?php // stats ?>
         <?php if (isUserTeacher($selectedUser)) { ?>
-            <p><b>Freigeschaltet</b>: <?= getUnlockedText($selectedUser) ?></p>
+            <tr>
+                <td><b>Freigeschaltet</b></td>
+                <td><?= getUnlockedText($selectedUser) ?></td>
+            </tr>
+            <tr>
+                <td><b>Anzahl Schüler</b></td>
+                <td><?= getUsersCount($selectedUser) ?></td>
+            </tr>
+            <tr>
+                <td><b>Anzahl Kurse</b></td>
+                <td><?= getCoursesCount($selectedUser) ?></td>
+            </tr>
+            <tr>
+                <td><b>Anzahl Stempel</b></td>
+                <td><?= getStampsCount($selectedUser) ?></td>
+            </tr>
+        <?php } elseif (isUserStudent($selectedUser)) { ?>
+            <tr>
+                <td><b>Anzahl Lehrer</b></td>
+                <td><?= getUsersCount($selectedUser) ?></td>
+            </tr>
+            <tr>
+                <td><b>Anzahl Kurse</b></td>
+                <td><?= getCoursesCount($selectedUser) ?></td>
+            </tr>
+            <tr>
+                <td><b>Anzahl Stempel</b></td>
+                <td><?= getStampsCount($selectedUser) ?></td>
+            </tr>
+        <?php } elseif (isUserAdmin($sessionUser)) { ?>
+            <tr>
+                <td><b>Anzahl Nutzer</b></td>
+                <td><?= getUsersCount($selectedUser) ?></td>
+            </tr>
+            <tr>
+                <td><b>Anzahl Lehrer</b></td>
+                <td><?= getTeacherCount() ?></td>
+            </tr>
+            <tr>
+                <td><b>Anzahl Schüler</b></td>
+                <td><?= getStudentCount() ?></td>
+            </tr>
+            <tr>
+                <td><b>Anzahl Kurse</b></td>
+                <td><?= getCoursesCount($selectedUser) ?></td>
+            </tr>
+            <tr>
+                <td><b>Durchschnittliche Schüler pro Kurs</b></td>
+                <td><?= getAverageUsersPerCourse() ?></td>
+            </tr>
+            <tr>
+                <td><b>Durchschnittliche Stempel pro Kurs</b></td>
+                <td><?= getAverageStampsPerCourse() ?></td>
+            </tr>
+            <tr>
+                <td><b>Anzahl Stempel</b></td>
+                <td><?= getStampsCount($selectedUser) ?></td>
+            </tr>
         <?php } ?>
-        <?php if (isUserStudent($selectedUser)) { ?>
-            <p><b>Anzahl Stempel</b>: <?= $selectedUser['AnzahlStempel'] ?></p>
-        <?php } ?>
-    </div>
+    </table>
 </div>
 <?php include '../../footer.inc.php'; ?>
 </body>
