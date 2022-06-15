@@ -2,7 +2,7 @@
 require_once "stempelAppManager.php";
 
 if (!isset($_GET["id"])) {
-    header("Location: ../login/login.php");
+    header("Location: index.php");
     exit;
 }
 

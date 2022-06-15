@@ -4,7 +4,7 @@ require_once "../dashboard.php";
 $sessionUser = getUserByName($_SESSION['name']);
 $selectedUser = getUserById($_GET['id']);
 
-$entityNumber = getRequestCount($selectedUser);
+$entityNumber = getCoursesCount($selectedUser);
 $totalPages = ceil($entityNumber / ENTITIES_PER_PAGE);
 $page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
 $startAtEntity = (int)(ENTITIES_PER_PAGE * ($page - 1));

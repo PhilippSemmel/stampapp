@@ -19,14 +19,19 @@ function usernameExists(): bool
     return boolval(getUserByName($_POST['username_register'])) == True;
 }
 
-function passwordsMatch(): bool
+function registerPasswordMatch(): bool
 {
     return $_POST["pw_register"] == $_POST["pw_register2"];
 }
 
-function setNameOfUserInSession($name)
+function loginPasswordMatch($user): bool
 {
-    $_SESSION["name"] = $name;
+    return password_verify($_POST["pw_login"], $user["Passwort"]);
+}
+
+function setNameOfUserInSession($user)
+{
+    $_SESSION["name"] = $user['Name'];
 }
 
 function headToDashboard($userid)
@@ -38,12 +43,12 @@ function headToDashboard($userid)
 if (isset($_POST["submit_register"])) {
     if (usernameExists()) {
         echoMessage('Username bereits vergeben');
-    } elseif (!passwordsMatch()) {
+    } elseif (!registerPasswordMatch()) {
         echoMessage('Passwörter stimmen nicht überein');
     } else {
         addNewUser($_POST['username_register'], $_POST['pw_register']);
         $user = getUserByName($_POST['username_register']);
-        setNameOfUserInSession($user['Name']);
+        setNameOfUserInSession($user);
         headToDashboard($user['Id']);
     }
 }
@@ -51,8 +56,8 @@ if (isset($_POST["submit_register"])) {
 // login
 if (isset($_POST["submit_login"])) {
     $user = getUserByName($_POST['username_login']);
-    if (password_verify($_POST["pw_login"], $user["Passwort"])) {                  // test if passwords match
-        setNameOfUserInSession($user['Name']);
+    if (loginPasswordMatch($user)) {
+        setNameOfUserInSession($user);
         headToDashboard($user['Id']);
     } else {
         echoMessage('Login fehlgeschlagen');
