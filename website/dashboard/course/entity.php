@@ -50,7 +50,7 @@ $selectedCourse = getCourseById($_GET['id']);
         <?php if (!isUserStudent($sessionUser)) { ?>
             <tr>
                 <td><b>Anzahl Schüler</b></td>
-                <td><?= getUsersCountForCourse($selectedCourse['Id']) ?></td>
+                <td><?= getUsersCountForCourse($selectedCourse) ?></td>
             </tr>
         <?php } ?>
     </table>

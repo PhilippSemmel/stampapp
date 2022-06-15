@@ -1,14 +1,18 @@
 <?php
 require_once "../../stempelAppManager.php";
-
-if (!isset($_SESSION["name"])) {
-    header("Location: ../login/login.php");
-    exit;
-}
+require_once "../dashboard.php";
 
 $sessionUser = getUserByName($_SESSION['name']);
 $selectedCourse = getUserById($_GET['id']);
-$users = getUsersForCourse($selectedCourse);
+
+$entityNumber = getUsersCountForCourse($selectedCourse);
+$totalPages = ceil($entityNumber / ENTITIES_PER_PAGE);
+$page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
+$startAtEntity = (int)(ENTITIES_PER_PAGE * ($page - 1));
+
+$users = getUsersForCourse($selectedCourse, $startAtEntity);
+
+$html = new EntityTable($users, basename(__FILE__), $page, $totalPages);
 
 function printColumnNames()
 {
@@ -32,33 +36,4 @@ function printEntityRow($user)
     </tr>
 <?php }
 
-?>
-
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-<head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="../../css/dashboard.css">
-    <link rel="stylesheet" href="../../css/header.css">
-    <link rel="stylesheet" href="../../css/footer.css">
-    <link rel="stylesheet" href="../../css/config.css">
-    <title></title>
-</head>
-<body>
-<?php include '../../header.inc.php'; ?>
-<?php include 'buttonlist.inc.php'; ?>
-<div class="container flex">
-    <div class="table">
-        <table>
-            <tr>
-                <?php printColumnNames() ?>
-            </tr>
-            <?php foreach ($users as $user) {
-                printEntityRow($user);
-            } ?>
-        </table>
-    </div>
-</div>
-<?php include '../../footer.inc.php'; ?>
-</body>
-</html>
+$html->print_html();

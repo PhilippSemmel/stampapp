@@ -119,7 +119,7 @@ function getUserIdByName($name)
     return $user['Id'];
 }
 
-function getUsers($selectedUser, $startAtEntry = null)
+function getUsers($selectedUser, $startAtEntity = null)
 {
     global $db;
     $parameters = array();
@@ -147,8 +147,8 @@ function getUsers($selectedUser, $startAtEntry = null)
             FROM Nutzer n';
     }
     // add page limitations
-    if (is_integer($startAtEntry)) {
-        $parameters = array_merge($parameters, [$startAtEntry, ENTITIES_PER_PAGE]);
+    if (is_integer($startAtEntity)) {
+        $parameters = array_merge($parameters, [$startAtEntity, ENTITIES_PER_PAGE]);
         $query .= ' LIMIT ?, ?';
     }
     $stmt = $db->prepare($query);
@@ -156,18 +156,19 @@ function getUsers($selectedUser, $startAtEntry = null)
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getUsersForCourse($course)
+function getUsersForCourse($course, $startAtEntity)
 {
     global $db;
+    $parameters = array($course['Id'], $startAtEntity, ENTITIES_PER_PAGE);
     $query =
         'SELECT n.Id, n.Name
         FROM Nutzer n, Schüler_Kurs sk, Kurs k
         WHERE sk.Schüler = n.Id
         AND sk.Kurs = k.Id
-        AND k.Id = :id';
+        AND k.Id = ?
+        LIMIT ?, ?';
     $stmt = $db->prepare($query);
-    $stmt->bindParam(':id', $course['Id']);
-    $stmt->execute();
+    $stmt->execute($parameters);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
@@ -203,7 +204,7 @@ function getStudentCount(): int
     return $count['count'];
 }
 
-function getUsersCountForCourse($courseId): int
+function getUsersCountForCourse($course): int
 {
     global $db;
     $query =
@@ -213,7 +214,7 @@ function getUsersCountForCourse($courseId): int
         AND sk.Kurs = k.Id
         AND k.Id = ?';
     $stmt = $db->prepare($query);
-    $stmt->execute(array($courseId));
+    $stmt->execute(array($course['Id']));
     $count = $stmt->fetch(PDO::FETCH_ASSOC);
     return $count['count'];
 }
@@ -294,7 +295,7 @@ function getCourseNameById($id)
     return $course['Name'];
 }
 
-function getCourses($selectedUser)
+function getCourses($selectedUser, $startAtEntity = null)
 {
     global $db;
     $sessionUser = getUserByName($_SESSION['name']);
@@ -360,6 +361,11 @@ function getCourses($selectedUser)
                 AND k.Lehrer = l.Id';
         }
     }
+    // add page limitations
+    if (is_integer($startAtEntity)) {
+        $parameters = array_merge($parameters, [$startAtEntity, ENTITIES_PER_PAGE]);
+        $query .= ' LIMIT ?, ?';
+    }
     $stmt = $db->prepare($query);
     $stmt->execute($parameters);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -391,7 +397,7 @@ function getStampById($id)
     return $stmt->fetch();
 }
 
-function getStamps($selectedUser, $startAtEntry = null)
+function getStamps($selectedUser, $startAtEntity = null)
 {
     global $db;
     $sessionUser = getUserByName($_SESSION['name']);
@@ -434,8 +440,8 @@ function getStamps($selectedUser, $startAtEntry = null)
             AND s.Kompetenz = kom.Id';
     }
     // add page limitations
-    if (is_integer($startAtEntry)) {
-        $parameters = array_merge($parameters, [$startAtEntry, ENTITIES_PER_PAGE]);
+    if (is_integer($startAtEntity)) {
+        $parameters = array_merge($parameters, [$startAtEntity, ENTITIES_PER_PAGE]);
         $query .= ' LIMIT ?, ?';
     }
     $stmt = $db->prepare($query);
@@ -443,7 +449,7 @@ function getStamps($selectedUser, $startAtEntry = null)
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getStampsForCourse($course)
+function getStampsForCourse($course, $startAtEntity)
 {
     global $db;
     $sessionUser = getUserByName($_SESSION['name']);
@@ -467,6 +473,11 @@ function getStampsForCourse($course)
         AND s.Aussteller = aussteller.Id
         AND s.Kompetenz = kom.Id';
     }
+    // add page limitations
+    if (is_integer($startAtEntity)) {
+        $parameters = array_merge($parameters, [$startAtEntity, ENTITIES_PER_PAGE]);
+        $query .= ' LIMIT ?, ?';
+    }
     $stmt = $db->prepare($query);
     $stmt->execute($parameters);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -478,9 +489,10 @@ function getStampsCount($selectedUser): int
     return count($stamps);
 }
 
-function getStampsCountForCourse($sessionUser, $course): int
+function getStampsCountForCourse($course): int
 {
     global $db;
+    $sessionUser = getUserByName($_SESSION['name']);
     $parameters = array($course['Id']);
     $query =
         'SELECT count(s.Id) AS count
@@ -511,10 +523,10 @@ function getAverageStampsPerCourse(): int
 /**
  * request functions
  */
-function getRequests($selectedUser)
+function getRequests($selectedUser, $startAtEntity = null)
 {
     global $db;
-    $parameter = array();
+    $parameters = array();
     $query =
         'SELECT a.Id, s.Id as Schüler, k.Id as Kurs
             FROM Anfrage a, Nutzer s, Kurs k
@@ -522,26 +534,50 @@ function getRequests($selectedUser)
             AND a.Kurs = k.Id';
     if (isUserTeacher($selectedUser)) {
         $query .= ' AND k.Lehrer = ?';
-        $parameter[] = $selectedUser['Id'];
+        $parameters[] = $selectedUser['Id'];
     } elseif (isUserStudent($selectedUser)) {
         $query .= ' AND s.Id = ?';
-        $parameter[] = $selectedUser['Id'];
+        $parameters[] = $selectedUser['Id'];
+    }
+    // add page limitations
+    if (is_integer($startAtEntity)) {
+        $parameters = array_merge($parameters, [$startAtEntity, ENTITIES_PER_PAGE]);
+        $query .= ' LIMIT ?, ?';
     }
     $stmt = $db->prepare($query);
-    $stmt->execute($parameter);
+    $stmt->execute($parameters);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getRequestsForCourse($selectedCourse)
+function getRequestsForCourse($selectedCourse, $startAtEntity)
 {
     global $db;
     $query =
         'SELECT a.Id, a.Schüler
         FROM Anfrage a, Kurs k
         WHERE a.Kurs = k.Id
-        AND k.Id = :id';
+        AND k.Id = ?
+        LIMIT ?, ?';
     $stmt = $db->prepare($query);
-    $stmt->bindParam(':id', $selectedCourse['Id']);
-    $stmt->execute();
+    $stmt->execute(array($selectedCourse['Id'], $startAtEntity, ENTITIES_PER_PAGE));
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getRequestsCountForCourse($course): int
+{
+    global $db;
+    $query =
+        'SELECT count(a.Id) as count
+        FROM Anfrage a
+        WHERE a.Kurs = ?';
+    $stmt = $db->prepare($query);
+    $stmt->execute(array($course['Id']));
+    $count = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $count['count'];
+}
+
+function getRequestCount($selectedUser): int
+{
+    $requests = getRequests($selectedUser);
+    return count($requests);
 }
