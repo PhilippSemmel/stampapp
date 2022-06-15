@@ -159,7 +159,6 @@ function getUsers($selectedUser, $startAtEntity = null)
 function getUsersForCourse($course, $startAtEntity)
 {
     global $db;
-    $parameters = array($course['Id'], $startAtEntity, ENTITIES_PER_PAGE);
     $query =
         'SELECT n.Id, n.Name
         FROM Nutzer n, Schüler_Kurs sk, Kurs k
@@ -168,7 +167,7 @@ function getUsersForCourse($course, $startAtEntity)
         AND k.Id = ?
         LIMIT ?, ?';
     $stmt = $db->prepare($query);
-    $stmt->execute($parameters);
+    $stmt->execute(array($course['Id'], $startAtEntity, ENTITIES_PER_PAGE));
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
@@ -237,12 +236,11 @@ function addNewUser($name, $pw)
 {
     global $db;
     $hash = password_hash($pw, PASSWORD_BCRYPT);
-    $parameter = array($name, $hash);
     $query =
         'INSERT INTO Nutzer (Id, Name, Passwort, Rolle, Freigeschaltet)
         VALUES (null, ?, ?, 0, 0)';
     $stmt = $db->prepare($query);
-    $stmt->execute($parameter);
+    $stmt->execute(array($name, $hash));
 }
 
 function isUserAdmin($user): bool
@@ -474,10 +472,8 @@ function getStampsForCourse($course, $startAtEntity)
         AND s.Kompetenz = kom.Id';
     }
     // add page limitations
-    if (is_integer($startAtEntity)) {
-        $parameters = array_merge($parameters, [$startAtEntity, ENTITIES_PER_PAGE]);
-        $query .= ' LIMIT ?, ?';
-    }
+    $parameters = array_merge($parameters, [$startAtEntity, ENTITIES_PER_PAGE]);
+    $query .= ' LIMIT ?, ?';
     $stmt = $db->prepare($query);
     $stmt->execute($parameters);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);

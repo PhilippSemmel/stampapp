@@ -1,5 +1,4 @@
 <?php
-require_once "../../stempelAppManager.php";
 require_once "../dashboard.php";
 
 $sessionUser = getUserByName($_SESSION['name']);
