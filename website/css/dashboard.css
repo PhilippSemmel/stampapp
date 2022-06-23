@@ -47,3 +47,9 @@ table, tr, td, th {
 th {
     background-color: #999;
 }
+
+.message {
+    font-size: 30px;
+    text-align: center;
+    margin-top: 1%;
+}

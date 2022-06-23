@@ -70,6 +70,10 @@ class EntityTable extends DashboardPage
                     <?php $this->print_page_links() ?>
                 </table>
             </div>
+        <?php } else { ?>
+            <div class="message">
+                <p>Keine Einträge in dieser Tabelle.</p>
+            </div>
         <?php }
     }
 
