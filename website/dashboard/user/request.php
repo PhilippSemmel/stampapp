@@ -6,22 +6,20 @@ $selectedUser = getUserById($_GET['id']);
 
 $entityNumber = getRequestCount($selectedUser);
 $totalPages = ceil($entityNumber / ENTITIES_PER_PAGE);
-$page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
-$startAtEntity = (int)(ENTITIES_PER_PAGE * ($page - 1));
+$pageNumber = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
+$startAtEntity = (int)(ENTITIES_PER_PAGE * ($pageNumber - 1));
 
 $requests = getRequests($selectedUser, $startAtEntity);
 
-$html = new EntityTable($requests, basename(__FILE__), $page, $totalPages);
+$page = new EntityTable($requests, basename(__FILE__), $pageNumber, $totalPages);
 
 function printColumnNames()
 {
     global $requests, $sessionUser;
-    if (sizeof($requests) != 0) {
-        foreach ($requests[0] as $key => $request) {
-            if ($key == 'Id' && !isUserAdmin($sessionUser)) { continue; } ?>
-            <th><?= $key ?></th>
-        <?php }
-    }
+    foreach ($requests[0] as $key => $request) {
+        if ($key == 'Id' && !isUserAdmin($sessionUser)) { continue; } ?>
+        <th><?= $key ?></th>
+    <?php }
 }
 
 function printEntityRow($request)
@@ -44,4 +42,4 @@ function printEntityRow($request)
     </tr>
 <?php }
 
-$html->print_html();
+$page->print_html();

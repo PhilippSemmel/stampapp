@@ -2,6 +2,7 @@
 session_start();
 
 $db = new PDO('sqlite:' . dirname(__FILE__) . '/StempelApp.db');
+$sessionUser = getUserByName($_SESSION['name']);
 
 /**
  * constants
@@ -181,7 +182,7 @@ function getTeacherCount(): int
 {
     global $db;
     $query =
-        'SELECT count(n.Id) as count
+        'SELECT count(n.Id) AS count
         FROM Nutzer n
         WHERE n.Rolle = 1';
     $stmt = $db->prepare($query);
@@ -194,7 +195,7 @@ function getStudentCount(): int
 {
     global $db;
     $query =
-        'SELECT count(n.Id) as count
+        'SELECT count(n.Id) AS count
         FROM Nutzer n
         WHERE n.Rolle = 0';
     $stmt = $db->prepare($query);
@@ -207,7 +208,7 @@ function getUsersCountForCourse($course): int
 {
     global $db;
     $query =
-        'SELECT count(n.Id) as count
+        'SELECT count(n.Id) AS count
         FROM Nutzer n, Schüler_Kurs sk, Kurs k
         WHERE sk.Schüler = n.Id
         AND sk.Kurs = k.Id
@@ -295,52 +296,47 @@ function getCourseNameById($id)
 
 function getCourses($selectedUser, $startAtEntity = null)
 {
-    global $db;
-    $sessionUser = getUserByName($_SESSION['name']);
+    global $db, $sessionUser;
     $parameters = array();
     if (isUserAdmin($sessionUser)) {
         if (isUserStudent($selectedUser)) {
             $query =
-                'SELECT k.Id, k.Name, k.Stufe, k.Fach, l.Id as Lehrer, count(sk.Id) as "Anzahl Schüler"
-                FROM Kurs k, Schüler_Kurs sk, Nutzer l
-                WHERE sk.Kurs = k.Id
-                AND k.Lehrer = l.Id
-                AND sk.Schüler = ?
+                'SELECT k.Id, k.Name, k.Stufe, k.Fach, k.Lehrer, count(sk2.Id) AS "Anzahl Schüler"
+                FROM Kurs k, Schüler_Kurs sk1, Schüler_Kurs sk2
+                WHERE sk1.Kurs = k.Id
+                AND sk1.Schüler = ?
+                AND sk2.Kurs = k.Id
                 GROUP BY k.Id';
             $parameters[] = $selectedUser['Id'];
         } elseif (isUserTeacher($selectedUser)) {
             $query =
-                'SELECT k.Id, k.Name, k.Stufe, k.Fach, l.Id as Lehrer, count(sk.Id) as "Anzahl Schüler"
-                FROM Kurs k, Schüler_Kurs sk, Nutzer l
-                WHERE l.Id = ?
-                AND k.Lehrer = l.Id
+                'SELECT k.Id, k.Name, k.Stufe, k.Fach, k.Lehrer, count(sk.Id) AS "Anzahl Schüler"
+                FROM Kurs k, Schüler_Kurs sk
+                WHERE k.Lehrer = ?
                 AND sk.Kurs = k.Id
                 GROUP BY k.Id';
             $parameters[] = $selectedUser['Id'];
         } else {
             $query =
-                'SELECT k.Id, k.Name, k.Stufe, k.Fach, l.Id as Lehrer, count(sk.Id) as "Anzahl Schüler"
-                FROM Kurs k, Schüler_Kurs sk, Nutzer l
+                'SELECT k.Id, k.Name, k.Stufe, k.Fach, k.Lehrer, count(sk.Id) AS "Anzahl Schüler"
+                FROM Kurs k, Schüler_Kurs sk
                 WHERE sk.Kurs = k.Id
-                AND k.Lehrer = l.Id
                 GROUP BY k.Id';
         }
     } elseif (isUserTeacher($sessionUser)) {
         $parameters[] = $sessionUser['Id'];
         if (isSameUser($sessionUser, $selectedUser)) {
             $query =
-                'SELECT k.Id, k.Name, k.Stufe, k.Fach, count(sk.Id) as "Anzahl Schüler"
-                FROM Kurs k, Schüler_Kurs sk, Nutzer l
-                WHERE l.Id = ?
-                AND k.Lehrer = l.Id
+                'SELECT k.Id, k.Name, k.Stufe, k.Fach, k.Lehrer, count(sk.Id) AS "Anzahl Schüler"
+                FROM Kurs k, Schüler_Kurs sk
+                WHERE k.Lehrer = ?
                 AND sk.Kurs = k.Id
                 GROUP BY k.Id';
         } else {
             $query =
-                'SELECT k.Id, k.Name, k.Stufe, k.Fach, l.Id as Lehrer, count(sk.Id) as "Anzahl Schüler"
-                FROM Kurs k, Schüler_Kurs sk, Nutzer l, Schüler_Kurs sk2
-                WHERE l.Id = ?
-                AND k.Lehrer = l.Id
+                'SELECT k.Id, k.Name, k.Stufe, k.Fach, k.Lehrer, count(sk2.Id) AS "Anzahl Schüler"
+                FROM Kurs k, Schüler_Kurs sk, Schüler_Kurs sk2
+                WHERE k.Lehrer = ?
                 AND sk.Kurs = k.Id
                 AND sk2.Kurs = sk.Kurs
                 AND sk.Schüler = ?
@@ -351,12 +347,15 @@ function getCourses($selectedUser, $startAtEntity = null)
         $parameters[] = $sessionUser['Id'];
         if (isSameUser($sessionUser, $selectedUser) or isUserTeacher($selectedUser)) {
             $query =
-                'SELECT k.Id, k.Name, k.Stufe, k.Fach, l.Id as "Lehrer"
-                FROM Kurs k, Schüler_Kurs sk, Nutzer s, Nutzer l
+                'SELECT k.Id, k.Name, k.Stufe, k.Fach, k.Lehrer
+                FROM Kurs k, Schüler_Kurs sk, Nutzer s
                 WHERE s.Id = ?
                 AND sk.Kurs = k.Id
-                AND sk.Schüler = s.Id
-                AND k.Lehrer = l.Id';
+                AND sk.Schüler = s.Id';
+            if (isUserTeacher($selectedUser)) {
+                $query .= ' AND k.Lehrer = ?';
+                $parameters[] = $selectedUser['Id'];
+            }
         }
     }
     // add page limitations
@@ -382,7 +381,7 @@ function getStampById($id)
 {
     global $db;
     $query =
-        'SELECT s.Id, s.Text, s.Bild, e.Id as Empfänger, a.Id as Aussteller, k.Id as Kurs, kom.Id as Kompetenz, Datum
+        'SELECT s.Id, s.Text, s.Bild, e.Id AS Empfänger, a.Id AS Aussteller, k.Id AS Kurs, kom.Id AS Kompetenz, Datum
         FROM Stempel s, Nutzer e, Nutzer a, Kurs k, Kompetenz kom
         WHERE s.Empfänger = e.Id
         AND s.Aussteller = a.Id
@@ -397,26 +396,26 @@ function getStampById($id)
 
 function getStamps($selectedUser, $startAtEntity = null)
 {
-    global $db;
-    $sessionUser = getUserByName($_SESSION['name']);
+    global $db, $sessionUser;
     $parameters = array();
-    if (isUserStudent($selectedUser)) {
+    if (isUserAdmin($sessionUser)) {
         $query =
-            'SELECT s.Id, s.Text, s.Bild, aussteller.Id as Aussteller, k.Id as Kurs, kom.Id as Kompetenz, Datum
+            'SELECT s.Id, s.Text, empfänger.Id AS Empfänger, aussteller.Id AS Aussteller, k.Id AS Kurs, kom.Id AS Kompetenz, Datum
             FROM Stempel s, Nutzer empfänger, Nutzer aussteller, Kurs k, Kompetenz kom
-            WHERE empfänger.Id = ?
-            AND s.Empfänger = empfänger.Id
+            WHERE s.Empfänger = empfänger.Id
             AND s.Aussteller = aussteller.Id
             AND s.Kurs = k.Id
             AND s.Kompetenz = kom.Id';
-        $parameters[] = $selectedUser['Id'];
-        if (isUserTeacher($sessionUser)) {
-            $query .= ' AND k.Lehrer = ?';
-            $parameters[] = $sessionUser['Id'];
+        if (isUserStudent($selectedUser)) {
+            $query .= ' AND empfänger.Id = ?';
+            $parameters[] = $selectedUser['Id'];
+        } elseif (isUserTeacher($selectedUser)) {
+            $query .= ' AND aussteller.Id = ?';
+            $parameters[] = $selectedUser['Id'];
         }
-    } elseif (isUserTeacher($selectedUser)) {
+    } elseif (isUserTeacher($sessionUser)) {
         $query =
-            'SELECT s.Id, s.Text, s.Bild, empfänger.Id as Empfänger, k.Id as Kurs, kom.Id as Kompetenz, Datum
+            'SELECT s.Id, s.Text, empfänger.Id AS Empfänger, aussteller.Id AS Aussteller, k.Id AS Kurs, kom.Id AS Kompetenz, Datum
             FROM Stempel s, Nutzer empfänger, Nutzer aussteller, Kurs k, Kompetenz kom
             WHERE s.Empfänger = empfänger.Id
             AND s.Aussteller = aussteller.Id
@@ -424,18 +423,24 @@ function getStamps($selectedUser, $startAtEntity = null)
             AND k.Lehrer = ?
             AND s.Kompetenz = kom.Id';
         $parameters[] = $selectedUser['Id'];
-        if (isUserStudent($sessionUser)) {
+        if (isUserStudent($selectedUser)) {
             $query .= ' AND empfänger.Id = ?';
             $parameters[] = $sessionUser['Id'];
         }
     } else {
         $query =
-            'SELECT s.Id, s.Text, s.Bild, empfänger.Id as Empfänger, aussteller.Id as Aussteller, k.Id as Kurs, kom.Id as Kompetenz, Datum
+            'SELECT s.Id, s.Text, empfänger.Id AS Empfänger, aussteller.Id AS Aussteller, k.Id AS Kurs, kom.Id AS Kompetenz, Datum
             FROM Stempel s, Nutzer empfänger, Nutzer aussteller, Kurs k, Kompetenz kom
-            WHERE s.Empfänger = empfänger.Id
+            WHERE empfänger.Id = ?
+            AND s.Empfänger = empfänger.Id
             AND s.Aussteller = aussteller.Id
             AND s.Kurs = k.Id
             AND s.Kompetenz = kom.Id';
+        $parameters[] = $sessionUser['Id'];
+        if (isUserTeacher($selectedUser)) {
+            $query .= ' AND k.Lehrer = ?';
+            $parameters[] = $selectedUser['Id'];
+        }
     }
     // add page limitations
     if (is_integer($startAtEntity)) {
@@ -449,12 +454,11 @@ function getStamps($selectedUser, $startAtEntity = null)
 
 function getStampsForCourse($course, $startAtEntity)
 {
-    global $db;
-    $sessionUser = getUserByName($_SESSION['name']);
+    global $db, $sessionUser;
     $parameters = array($course['Id']);
     if (isUserStudent($sessionUser)) {
         $query =
-            'SELECT s.Id, s.Text, s.Bild, aussteller.Id as Aussteller, kom.Id as Kompetenz, Datum
+            'SELECT s.Id, s.Text, aussteller.Id AS Aussteller, kom.Id AS Kompetenz, Datum
         FROM Stempel s, Nutzer empfänger, Nutzer aussteller, Kompetenz kom
         WHERE s.Kurs = ?
         AND s.Empfänger = empfänger.Id
@@ -464,7 +468,7 @@ function getStampsForCourse($course, $startAtEntity)
         $parameters[] = $sessionUser['Id'];
     } else {
         $query =
-            'SELECT s.Id, s.Text, s.Bild, empfänger.Id as Empfänger, aussteller.Id as Aussteller, kom.Id as Kompetenz, Datum
+            'SELECT s.Id, s.Text, empfänger.Id AS Empfänger, aussteller.Id AS Aussteller, kom.Id AS Kompetenz, Datum
         FROM Stempel s, Nutzer empfänger, Nutzer aussteller, Kompetenz kom
         WHERE s.Kurs = ?
         AND s.Empfänger = empfänger.Id
@@ -487,8 +491,7 @@ function getStampsCount($selectedUser): int
 
 function getStampsCountForCourse($course): int
 {
-    global $db;
-    $sessionUser = getUserByName($_SESSION['name']);
+    global $db, $sessionUser;
     $parameters = array($course['Id']);
     $query =
         'SELECT count(s.Id) AS count
@@ -508,7 +511,7 @@ function getAverageStampsPerCourse(): int
 {
     global $db;
     $query =
-        'SELECT count(s.Id) / count(distinct(s.Kurs)) as count
+        'SELECT count(s.Id) / count(distinct(s.Kurs)) AS count
         FROM Stempel s';
     $stmt = $db->prepare($query);
     $stmt->execute();
@@ -521,19 +524,38 @@ function getAverageStampsPerCourse(): int
  */
 function getRequests($selectedUser, $startAtEntity = null)
 {
-    global $db;
+    global $db, $sessionUser;
     $parameters = array();
-    $query =
-        'SELECT a.Id, s.Id as Schüler, k.Id as Kurs
-            FROM Anfrage a, Nutzer s, Kurs k
-            WHERE a.Schüler = s.Id
-            AND a.Kurs = k.Id';
-    if (isUserTeacher($selectedUser)) {
-        $query .= ' AND k.Lehrer = ?';
+    if (isUserStudent($selectedUser)) {
+        $query =
+            'SELECT a.Id, s.Id AS Schüler, k.Id AS Kurs
+                FROM Anfrage a, Nutzer s, Kurs k
+                WHERE a.Schüler = s.Id
+                AND a.Kurs = k.Id
+                AND s.Id = ?';
         $parameters[] = $selectedUser['Id'];
-    } elseif (isUserStudent($selectedUser)) {
-        $query .= ' AND s.Id = ?';
+        if (isUserTeacher($sessionUser)) {
+            $query .= ' AND k.Lehrer = ?';
+            $parameters[] = $sessionUser['Id'];
+        }
+    } elseif (isUserTeacher($selectedUser)) {
+        $query =
+            'SELECT a.Id, s.Id AS Schüler, k.Id AS Kurs
+                FROM Anfrage a, Nutzer s, Kurs k
+                WHERE a.Schüler = s.Id
+                AND a.Kurs = k.Id
+                AND k.Lehrer = ?';
         $parameters[] = $selectedUser['Id'];
+        if (isUserStudent($sessionUser)) {
+            $query .= ' AND a.Schüler = ?';
+            $parameters[] = $sessionUser['Id'];
+        }
+    } else {
+        $query =
+            'SELECT a.Id, s.Id AS Schüler, k.Id AS Kurs
+                FROM Anfrage a, Nutzer s, Kurs k
+                WHERE a.Schüler = s.Id
+                AND a.Kurs = k.Id';
     }
     // add page limitations
     if (is_integer($startAtEntity)) {
@@ -563,7 +585,7 @@ function getRequestsCountForCourse($course): int
 {
     global $db;
     $query =
-        'SELECT count(a.Id) as count
+        'SELECT count(a.Id) AS count
         FROM Anfrage a
         WHERE a.Kurs = ?';
     $stmt = $db->prepare($query);

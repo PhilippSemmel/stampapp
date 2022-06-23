@@ -6,22 +6,20 @@ $selectedCourse = getCourseById($_GET['id']);
 
 $entityNumber = getStampsCountForCourse($selectedCourse);
 $totalPages = ceil($entityNumber / ENTITIES_PER_PAGE);
-$page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
-$startAtEntity = (int)(ENTITIES_PER_PAGE * ($page - 1));
+$pageNumber = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
+$startAtEntity = (int)(ENTITIES_PER_PAGE * ($pageNumber - 1));
 
 $stamps = getStampsForCourse($selectedCourse, $startAtEntity);
 
-$html = new EntityTable($stamps, basename(__FILE__), $page, $totalPages);
+$page = new EntityTable($stamps, basename(__FILE__), $pageNumber, $totalPages);
 
 function printColumnNames()
 {
     global $stamps, $sessionUser;
-    if (sizeof($stamps) != 0) {
-        foreach ($stamps[0] as $key => $stamp) {
-            if ($key == 'Id' && !isUserAdmin($sessionUser)) { continue; } ?>
-            <th><?= $key ?></th>
-        <?php }
-    }
+    foreach ($stamps[0] as $key => $stamp) {
+        if ($key == 'Id' && !isUserAdmin($sessionUser)) { continue; } ?>
+        <th><?= $key ?></th>
+    <?php }
 }
 
 function printEntityRow($stamp)
@@ -32,7 +30,6 @@ function printEntityRow($stamp)
             <td><?= $stamp['Id'] ?></td>
         <?php } ?>
         <td><a href="../stamp/entity.php?id=<?= $stamp['Id'] ?>"><?= $stamp['Text'] ?></a></td>
-        <td><?= $stamp['Bild'] ?></td>
         <?php if (!isUserStudent($sessionUser)) { ?>
             <td><a href="../user/entity.php?id=<?= $stamp['Empfänger'] ?>"><?= getUserNameById($stamp['Empfänger']) ?></a></td>
         <?php } ?>
@@ -42,4 +39,4 @@ function printEntityRow($stamp)
     </tr>
 <?php }
 
-$html->print_html();
+$page->print_html();

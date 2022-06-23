@@ -1,7 +1,7 @@
 <?php
 require_once "../dashboard.php";
 
-$html = new EntityPage();
+$page = new EntityPage();
 
 function print_entity_values()
 {
@@ -37,4 +37,4 @@ function print_entity_values()
     <?php } ?>
 <?php }
 
-$html->print_html();
+$page->print_html();

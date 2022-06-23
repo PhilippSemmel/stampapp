@@ -1,7 +1,7 @@
 <?php
 require_once "../dashboard.php";
 
-$html = new EntityPage();
+$page = new EntityPage();
 
 function print_entity_values()
 {
@@ -21,7 +21,7 @@ function print_entity_values()
         <td><b>Rolle</b></td>
         <td><?= ROLLEN_NAMEN[$selectedUser['Rolle']] ?></td>
     </tr>
-    <?php // stats ?>
+    <!-- stats -->
     <?php if (isUserTeacher($selectedUser)) { ?>
         <tr>
             <td><b>Freigeschaltet</b></td>
@@ -36,7 +36,7 @@ function print_entity_values()
             <td><?= getCoursesCount($selectedUser) ?></td>
         </tr>
         <tr>
-            <td><b>Anzahl Stempel</b></td>
+            <td><b>Vergebene Stempel</b></td>
             <td><?= getStampsCount($selectedUser) ?></td>
         </tr>
     <?php } elseif (isUserStudent($selectedUser)) { ?>
@@ -84,4 +84,4 @@ function print_entity_values()
     <?php } ?>
 <?php }
 
-$html->print_html();
+$page->print_html();

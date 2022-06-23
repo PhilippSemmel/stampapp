@@ -45,38 +45,44 @@ class EntityTable extends DashboardPage
 {
     private $entities;
     private $file_name;
-    private $page;
+    private $pageNumber;
     private $totalPages;
 
-    function __construct($entities, $file_name, $page, $totalPages)
+    function __construct($entities, $file_name, $pageNumber, $totalPages)
     {
         $this->entities = $entities;
         $this->file_name = $file_name;
-        $this->page = $page;
+        $this->pageNumber = $pageNumber;
         $this->totalPages = $totalPages;
     }
 
     function print_body_content()
-    { ?>
-        <div class="container flex">
-            <table>
-                <tr>
-                    <?php printColumnNames() ?>
-                </tr>
-                <?php foreach ($this->entities as $entity) {
-                    printEntityRow($entity);
-                } ?>
-                <td><?php $this->print_page_links() ?></td>
-            </table>
-        </div>
-    <?php }
+    {
+        if (count($this->entities) > 0) { ?>
+            <div class="container flex">
+                <table>
+                    <tr>
+                        <?php printColumnNames() ?>
+                    </tr>
+                    <?php foreach ($this->entities as $entity) {
+                        printEntityRow($entity);
+                    } ?>
+                    <?php $this->print_page_links() ?>
+                </table>
+            </div>
+        <?php }
+    }
 
     function print_page_links()
     {
-        for ($i = 1; $i <= $this->totalPages; $i++) {
-            echo ($i != $this->page) ? "<a href='" . $this->file_name . "?id=" . $_GET['id'] . "&page=$i'>$i</a>" : "<u>$this->page</u>";
-        }
-    }
+        if ($this->totalPages != 1) { ?>
+            <td>
+                <?php for ($i = 1; $i <= $this->totalPages; $i++) {
+                    echo ($i != $this->pageNumber) ? "<a href='" . $this->file_name . "?id=" . $_GET['id'] . "&page=$i'>$i</a>" : "$this->pageNumber";
+                } ?>
+            </td>
+        <?php } ?>
+    <?php }
 }
 
 class EntityPage extends DashboardPage

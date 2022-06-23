@@ -6,22 +6,20 @@ $selectedCourse = getUserById($_GET['id']);
 
 $entityNumber = getUsersCountForCourse($selectedCourse);
 $totalPages = ceil($entityNumber / ENTITIES_PER_PAGE);
-$page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
-$startAtEntity = (int)(ENTITIES_PER_PAGE * ($page - 1));
+$pageNumber = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
+$startAtEntity = (int)(ENTITIES_PER_PAGE * ($pageNumber - 1));
 
 $users = getUsersForCourse($selectedCourse, $startAtEntity);
 
-$html = new EntityTable($users, basename(__FILE__), $page, $totalPages);
+$page = new EntityTable($users, basename(__FILE__), $pageNumber, $totalPages);
 
 function printColumnNames()
 {
     global $users, $sessionUser;
-    if (sizeof($users) != 0) {
-        foreach ($users[0] as $key => $selectedCourse) {
-            if ($key == 'Id' && !isUserAdmin($sessionUser)) { continue; } ?>
-            <th><?= $key ?></th>
-        <?php }
-    }
+    foreach ($users[0] as $key => $selectedCourse) {
+        if ($key == 'Id' && !isUserAdmin($sessionUser)) { continue; } ?>
+        <th><?= $key ?></th>
+    <?php }
 }
 
 function printEntityRow($user)
@@ -35,4 +33,4 @@ function printEntityRow($user)
     </tr>
 <?php }
 
-$html->print_html();
+$page->print_html();
