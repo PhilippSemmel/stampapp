@@ -2,7 +2,6 @@
 session_start();
 
 $db = new PDO('sqlite:' . dirname(__FILE__) . '/StempelApp.db');
-$sessionUser = getUserByName($_SESSION['name']);
 
 /**
  * constants
@@ -296,7 +295,8 @@ function getCourseNameById($id)
 
 function getCourses($selectedUser, $startAtEntity = null)
 {
-    global $db, $sessionUser;
+    global $db;
+    $sessionUser = getUserByName($_SESSION['name']);
     $parameters = array();
     if (isUserAdmin($sessionUser)) {
         if (isUserStudent($selectedUser)) {
@@ -396,7 +396,8 @@ function getStampById($id)
 
 function getStamps($selectedUser, $startAtEntity = null)
 {
-    global $db, $sessionUser;
+    global $db;
+    $sessionUser = getUserByName($_SESSION['name']);
     $parameters = array();
     if (isUserAdmin($sessionUser)) {
         $query =
@@ -422,10 +423,10 @@ function getStamps($selectedUser, $startAtEntity = null)
             AND s.Kurs = k.Id
             AND k.Lehrer = ?
             AND s.Kompetenz = kom.Id';
-        $parameters[] = $selectedUser['Id'];
+        $parameters[] = $sessionUser['Id'];
         if (isUserStudent($selectedUser)) {
             $query .= ' AND empfänger.Id = ?';
-            $parameters[] = $sessionUser['Id'];
+            $parameters[] = $selectedUser['Id'];
         }
     } else {
         $query =
@@ -454,7 +455,8 @@ function getStamps($selectedUser, $startAtEntity = null)
 
 function getStampsForCourse($course, $startAtEntity)
 {
-    global $db, $sessionUser;
+    global $db;
+    $sessionUser = getUserByName($_SESSION['name']);
     $parameters = array($course['Id']);
     if (isUserStudent($sessionUser)) {
         $query =
@@ -491,7 +493,8 @@ function getStampsCount($selectedUser): int
 
 function getStampsCountForCourse($course): int
 {
-    global $db, $sessionUser;
+    global $db;
+    $sessionUser = getUserByName($_SESSION['name']);
     $parameters = array($course['Id']);
     $query =
         'SELECT count(s.Id) AS count
@@ -524,7 +527,8 @@ function getAverageStampsPerCourse(): int
  */
 function getRequests($selectedUser, $startAtEntity = null)
 {
-    global $db, $sessionUser;
+    global $db;
+    $sessionUser = getUserByName($_SESSION['name']);
     $parameters = array();
     if (isUserStudent($selectedUser)) {
         $query =
